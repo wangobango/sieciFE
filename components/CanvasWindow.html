@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Game Room</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+</head>
+
+<body>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+    <div class="row">
+        <div class="col-md-8" style="height:600px;border-right: 1px dashed #333;">
+            <canvas id="myCanvas" width="533" height="600" />
+        </div>
+        <div class="col-md-4" style="height:600px;">
+            <div class="row" style="height:70%;">
+                <div class="col-md-12">
+                    <p>Czat</p>
+                </div>
+            </div>
+            <hr />
+            <div class="row container">
+                <div class="col-lg-6">
+                    <div class="row justify-content-center">
+                        <input type="text" class="form-control" />
+                        <button class="btn btn-primary">Submit Message</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var canvas, ctx, flag = false,
+            prevX = 0,
+            currX = 0,
+            prevY = 0,
+            currY = 0,
+            dot_flag = false;
+
+        var x = "black",
+            y = 2;
+
+        function init() {
+            canvas = document.getElementById('myCanvas');
+            ctx = canvas.getContext("2d");
+            w = canvas.width;
+            h = canvas.height;
+
+            canvas.addEventListener("mousemove", function (e) {
+                findxy('move', e)
+            }, false);
+            canvas.addEventListener("mousedown", function (e) {
+                findxy('down', e)
+            }, false);
+            canvas.addEventListener("mouseup", function (e) {
+                findxy('up', e)
+            }, false);
+            canvas.addEventListener("mouseout", function (e) {
+                findxy('out', e)
+            }, false);
+        }
+
+
+
+        function draw() {
+            ctx.beginPath();
+            ctx.moveTo(prevX, prevY);
+            ctx.lineTo(currX, currY);
+            ctx.strokeStyle = x;
+            ctx.lineWidth = y;
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        function erase() {
+            var m = confirm("Want to clear");
+            if (m) {
+                ctx.clearRect(0, 0, w, h);
+                document.getElementById("canvasimg").style.display = "none";
+            }
+        }
+
+        function findxy(res, e) {
+            if (res == 'down') {
+                prevX = currX;
+                prevY = currY;
+                currX = e.clientX - canvas.offsetLeft;
+                currY = e.clientY - canvas.offsetTop;
+
+                flag = true;
+                dot_flag = true;
+                if (dot_flag) {
+                    ctx.beginPath();
+                    ctx.fillStyle = x;
+                    ctx.fillRect(currX, currY, 2, 2);
+                    ctx.closePath();
+                    dot_flag = false;
+                }
+            }
+            if (res == 'up' || res == "out") {
+                flag = false;
+            }
+            if (res == 'move') {
+                if (flag) {
+                    prevX = currX;
+                    prevY = currY;
+                    currX = e.clientX - canvas.offsetLeft;
+                    currY = e.clientY - canvas.offsetTop;
+                    draw();
+                }
+            }
+        }
+
+        init();
+
+        let fs = require('fs');
+        let path = 'components/data/canvas.json'
+
+        setInterval(() => {
+            let canvasContents = canvas.toDataURL();
+            let data = {
+                image: canvasContents,
+                date: Date.now()
+            };
+
+            fs.writeFile(path, JSON.stringify(data), 'utf-8', (err) => {
+                if (err) throw err;
+            });
+        }, 3000)
+    </script>
+</body>
+
+</html>

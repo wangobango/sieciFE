@@ -12,7 +12,9 @@ const url = require('url');
 let roomListWindow;
 let nickWindow;
 let newRoomWindow;
+let canvasWindow;
 let user = '';
+let currenCanvasRoom;
 
 function createWindow() {
     roomListWindow = new BrowserWindow({
@@ -61,6 +63,21 @@ function createNewRoomWindow(){
     });
 }
 
+function createCanvasWindow(){
+    canvasWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+    });
+    canvasWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'components/CanvasWindow.html'),
+        protocol: 'file:',
+        slashes: true
+    }));
+    canvasWindow.on('close', () => {
+        canvasWindow = null;
+    });
+}
+
 //EVENT HANDLERS !!!
 
 ipcMain.on('new-nick', (e, item) => {
@@ -77,6 +94,12 @@ ipcMain.on('new-room', (e, R) => {
 
 ipcMain.on('request-nick', (e) =>{
     e.sender.send('request-nick-answer',user);
+})
+
+ipcMain.on('enter-game', (e,room) => {
+    currenCanvasRoom = room;
+    createCanvasWindow();
+    roomListWindow.close();
 })
 
 
