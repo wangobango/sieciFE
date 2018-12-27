@@ -5,7 +5,7 @@ let rooms = JSON.parse(fs.readFileSync(path,'utf-8'));
 function Rooms(){}
 
 Rooms.prototype.getAll = function(){
-    return JSON.parse(fs.readFileSync(path,'utf-8'));
+    return rooms;
 }
 
 /**
@@ -22,16 +22,18 @@ Rooms.prototype.incrementUsers = function(roomId){
     });
 };
 
-Rooms.prototype.addNewRoom = function(id, name){
+Rooms.prototype.addNewRoom = function(name){
     let room = {
-        id : id,
+        id : Rooms.prototype.getNewId(),
         name : name,
         users : 1
     }
-    rooms.push(room);
-    fs.writeFile(path,JSON.stringify(rooms),'utf-8', (err)=>{
-        if(err) throw err;
-    });
+    if(name != ''){
+        rooms.push(room);
+        fs.writeFile(path,JSON.stringify(rooms),'utf-8', (err)=>{
+            if(err) throw err;
+        });
+    }
 }
 
 Rooms.prototype.getNewId = function(){

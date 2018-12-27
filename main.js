@@ -33,7 +33,7 @@ function createNickWindow() {
     nickWindow = new BrowserWindow({
         width: 400,
         height: 200,
-        frame: true
+        frame: false
     });
     // nickWindow.loadFile('components/NickWindow.html');
     nickWindow.loadURL(url.format({
@@ -74,8 +74,6 @@ ipcMain.on('new-room', (e, R) => {
     createNewRoomWindow();
     // newRoomWindow.webContents.send('new-room', R);
 })
-
-
 
 
 // APP EVENTS

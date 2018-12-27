@@ -24,11 +24,11 @@
         const rooms = require('./Rooms.js');
         const R = new rooms.Rooms();
 
-        btn.addEventListener('click', addNewRoom());
+        btn.addEventListener('click', addNewRoom);
 
         function addNewRoom(){
-            R.addNewRoom(R.getNewId(),document.getElementById('new-room-input').value);
-            // R.addNewRoom(4,"KURWA");
+            R.addNewRoom(document.getElementById('new-room-input').value);
+            ipcRenderer.send('new-nick',inpt.value);
         }
 
     </script>
