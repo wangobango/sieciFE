@@ -38,9 +38,13 @@
       document.getElementById('nick-label').innerHTML = item;
     });
 
+    ipcRenderer.send('request-nick');
+    ipcRenderer.on('request-nick-answer', (e,item)=>{
+      document.getElementById('nick-label').innerHTML = item;
+    })
+
     const R = new rooms.Rooms();
 
-    R.addNewRoom(3,"DUPA");
     R.incrementUsers(2);
 
     R.getAll().forEach((item) => {
@@ -57,6 +61,26 @@
       e.preventDefault();
       ipcRenderer.send('new-room',R);
     }
+
+    function reloadRooms(){
+      ul.innerHTML = '';
+      delete require.cache[require.resolve('./Rooms.js')]; 
+      let roomz = require('./Rooms.js');
+      let rura = new roomz.Rooms();
+      console.log(rura.getAll());
+      rura.getAll().forEach((item) => {
+        let li = document.createElement('li');
+        li.classList.add('list-group-item');
+        li.innerHTML =
+          ` <span> ${item.name}</span> <span>${item.users}/10</span>`;
+        ul.appendChild(li);
+      })
+    }
+
+    setInterval(()=>{
+      console.log("RELOAD");
+      reloadRooms();
+    },2000);
 
   </script>
 </body>

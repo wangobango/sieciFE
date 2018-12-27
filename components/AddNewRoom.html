@@ -21,14 +21,14 @@
         const electron = require('electron');
         const ipcRenderer = require('electron').ipcRenderer;
         const btn = document.getElementById('new-room-button');
+        const rooms = require('./Rooms.js');
+        const R = new rooms.Rooms();
 
         btn.addEventListener('click', addNewRoom);
 
-        let R;
-        // ipcRenderer.on()
-
         function addNewRoom(){
-
+            R.addNewRoom(document.getElementById('new-room-input').value);
+            ipcRenderer.send('new-nick',inpt.value);
         }
 
     </script>
