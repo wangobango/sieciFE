@@ -45,8 +45,6 @@
 
     const R = new rooms.Rooms();
 
-    R.incrementUsers(2);
-
     R.getAll().forEach((item) => {
       let li = document.createElement('li');
       li.classList.add('list-group-item');
@@ -67,18 +65,23 @@
       delete require.cache[require.resolve('./Rooms.js')]; 
       let roomz = require('./Rooms.js');
       let rura = new roomz.Rooms();
-      console.log(rura.getAll());
       rura.getAll().forEach((item) => {
         let li = document.createElement('li');
         li.classList.add('list-group-item');
         li.innerHTML =
-          ` <span> ${item.name}</span> <span>${item.users}/10</span>`;
+          ` <span> ${item.name}</span>  <span>${item.users}/10</span>`;
         ul.appendChild(li);
       })
     }
 
+    // Open canvas window
+    ul.addEventListener('dblclick', (event)=>{
+      let pom = event.target.innerHTML.split('  ');
+      pom = pom[0].replace('<span>','').replace('</span>','');
+      ipcRenderer.send('enter-game',pom);
+    })
+
     setInterval(()=>{
-      console.log("RELOAD");
       reloadRooms();
     },2000);
 
