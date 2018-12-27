@@ -87,6 +87,11 @@ ipcMain.on('new-nick', (e, item) => {
     nickWindow.close();
 });
 
+ipcMain.on('leave-gaming-room', ()=>{
+    createWindow();
+    canvasWindow.close();
+})
+
 ipcMain.on('new-room', (e, R) => {
     createNewRoomWindow();
     // newRoomWindow.webContents.send('new-room', R);

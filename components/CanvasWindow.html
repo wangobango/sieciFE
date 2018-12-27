@@ -5,6 +5,7 @@
     <title>Game Room</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
         crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="data/chat_style.css" media="screen" />
 </head>
 
 <body>
@@ -20,123 +21,205 @@
             <canvas id="myCanvas" width="533" height="600" />
         </div>
         <div class="col-md-4" style="height:600px;">
-            <div class="row" style="height:70%;">
+            <div class="row" style="height:80%;">
                 <div class="col-md-12">
-                    <p>Czat</p>
-                </div>
-            </div>
-            <hr />
-            <div class="row container">
-                <div class="col-lg-6">
-                    <div class="row justify-content-center">
-                        <input type="text" class="form-control" />
-                        <button class="btn btn-primary">Submit Message</button>
-                        <button class="btn btn-primary">Exit</button>
+                    <div class="chatbody">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading top-bar">
+                                <div class="col-md-8 col-xs-8">
+                                    <h3 class="panel-title"><span class="glyphicon glyphicon-comment"></span> Chat </h3>
+                                </div>
+                            </div>
+                            <div class="panel-body msg_container_base" id="main-chat-panel">
+                                <div class="row msg_container base_sent">
+                                    <div class="col-md-10 col-xs-10">
+                                        <div class="messages msg_sent">
+                                            <p>that mongodb thing looks good, huh?
+                                                tiny master db, and huge document store</p>
+                                            <time datetime="2009-11-13T20:00">Timothy </time>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row msg_container base_receive">
+                                    <div class="col-md-10 col-xs-10">
+                                        <div class="messages msg_receive">
+                                            <p>that mongodb thing looks good, huh?
+                                                tiny master db, and huge document store</p>
+                                            <time datetime="2009-11-13T20:00">Timothy </time>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row panel-footer container">
+                        <div class="col-lg-6">
+                            <div class="row justify-content-center">
+                                <input type="text" class="form-control" id="text-field"/>
+                                <button class="btn btn-primary text" id="text-button">Submit Message</button>
+                                <button class="btn btn-primary exit" id="exit-button">Exit</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        var canvas, ctx, flag = false,
-            prevX = 0,
-            currX = 0,
-            prevY = 0,
-            currY = 0,
-            dot_flag = false;
+        <script>
+            var canvas, ctx, flag = false,
+                prevX = 0,
+                currX = 0,
+                prevY = 0,
+                currY = 0,
+                dot_flag = false;
 
-        var x = "black",
-            y = 2;
+            var x = "black",
+                y = 2;
 
-        function init() {
-            canvas = document.getElementById('myCanvas');
-            ctx = canvas.getContext("2d");
-            w = canvas.width;
-            h = canvas.height;
+            function init() {
+                canvas = document.getElementById('myCanvas');
+                ctx = canvas.getContext("2d");
+                w = canvas.width;
+                h = canvas.height;
 
-            canvas.addEventListener("mousemove", function (e) {
-                findxy('move', e)
-            }, false);
-            canvas.addEventListener("mousedown", function (e) {
-                findxy('down', e)
-            }, false);
-            canvas.addEventListener("mouseup", function (e) {
-                findxy('up', e)
-            }, false);
-            canvas.addEventListener("mouseout", function (e) {
-                findxy('out', e)
-            }, false);
-        }
-
-
-
-        function draw() {
-            ctx.beginPath();
-            ctx.moveTo(prevX, prevY);
-            ctx.lineTo(currX, currY);
-            ctx.strokeStyle = x;
-            ctx.lineWidth = y;
-            ctx.stroke();
-            ctx.closePath();
-        }
-
-        function erase() {
-            var m = confirm("Want to clear");
-            if (m) {
-                ctx.clearRect(0, 0, w, h);
-                document.getElementById("canvasimg").style.display = "none";
+                canvas.addEventListener("mousemove", function (e) {
+                    findxy('move', e)
+                }, false);
+                canvas.addEventListener("mousedown", function (e) {
+                    findxy('down', e)
+                }, false);
+                canvas.addEventListener("mouseup", function (e) {
+                    findxy('up', e)
+                }, false);
+                canvas.addEventListener("mouseout", function (e) {
+                    findxy('out', e)
+                }, false);
             }
-        }
 
-        function findxy(res, e) {
-            if (res == 'down') {
-                prevX = currX;
-                prevY = currY;
-                currX = e.clientX - canvas.offsetLeft;
-                currY = e.clientY - canvas.offsetTop;
 
-                flag = true;
-                dot_flag = true;
-                if (dot_flag) {
-                    ctx.beginPath();
-                    ctx.fillStyle = x;
-                    ctx.fillRect(currX, currY, 2, 2);
-                    ctx.closePath();
-                    dot_flag = false;
+
+            function draw() {
+                ctx.beginPath();
+                ctx.moveTo(prevX, prevY);
+                ctx.lineTo(currX, currY);
+                ctx.strokeStyle = x;
+                ctx.lineWidth = y;
+                ctx.stroke();
+                ctx.closePath();
+            }
+
+            function erase() {
+                var m = confirm("Want to clear");
+                if (m) {
+                    ctx.clearRect(0, 0, w, h);
+                    document.getElementById("canvasimg").style.display = "none";
                 }
             }
-            if (res == 'up' || res == "out") {
-                flag = false;
-            }
-            if (res == 'move') {
-                if (flag) {
+
+            function findxy(res, e) {
+                if (res == 'down') {
                     prevX = currX;
                     prevY = currY;
                     currX = e.clientX - canvas.offsetLeft;
                     currY = e.clientY - canvas.offsetTop;
-                    draw();
+
+                    flag = true;
+                    dot_flag = true;
+                    if (dot_flag) {
+                        ctx.beginPath();
+                        ctx.fillStyle = x;
+                        ctx.fillRect(currX, currY, 2, 2);
+                        ctx.closePath();
+                        dot_flag = false;
+                    }
+                }
+                if (res == 'up' || res == "out") {
+                    flag = false;
+                }
+                if (res == 'move') {
+                    if (flag) {
+                        prevX = currX;
+                        prevY = currY;
+                        currX = e.clientX - canvas.offsetLeft;
+                        currY = e.clientY - canvas.offsetTop;
+                        draw();
+                    }
                 }
             }
-        }
 
-        init();
+            init();
 
-        let fs = require('fs');
-        let path = 'components/data/canvas.json'
+            let fs = require('fs');
+            let path = 'components/data/canvas.json'
+            const ipcRenderer = require('electron').ipcRenderer;
 
-        setInterval(() => {
-            let canvasContents = canvas.toDataURL();
-            let data = {
-                image: canvasContents,
-                date: Date.now()
-            };
+            // TODO serialize
+            setInterval(() => {
+                let canvasContents = canvas.toDataURL();
+                let data = {
+                    image: canvasContents,
+                    date: Date.now()
+                };
 
-            fs.writeFile(path, JSON.stringify(data), 'utf-8', (err) => {
-                if (err) throw err;
-            });
-        }, 3000)
-    </script>
+                fs.writeFile(path, JSON.stringify(data), 'utf-8', (err) => {
+                    if (err) throw err;
+                });
+            }, 3000)
+
+            exit_button = document.getElementById('exit-button');
+            exit_button.addEventListener('click', () => {
+                ipcRenderer.send('leave-gaming-room');
+            })
+
+            function createMessage(author, text, type){
+                let currentdate = new Date();
+                let datetime = 
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+
+                let body = document.createElement('div')
+                let chat_col = document.createElement('div');
+                chat_col.classList.add('col-md-10','col-xs-10');
+                let message = document.createElement('div');
+                let message_value = document.createElement('p');
+                message_value.appendChild(document.createTextNode(text));
+                let time_stamp = document.createElement('time');
+                time_stamp.appendChild(document.createTextNode(datetime+' '+author));
+                time_stamp.setAttribute("datetime", datetime);
+                if(type == 'sent'){
+                    body.classList.add('row','msg_container','base_sent');
+                    message.classList.add('messages','msg_sent');
+                } else {
+                    body.classList.add('row','msg_container','base_recive');
+                    message.classList.add('messages','msg_recive');
+                }
+
+                message.append(message_value);
+                message.append(time_stamp);
+                chat_col.append(message);
+                body.append(chat_col);
+
+                let panel = document.getElementById('main-chat-panel');
+                panel.appendChild(body);
+            }
+
+            let user;
+
+            ipcRenderer.send('request-nick');
+            ipcRenderer.on('request-nick-answer', (e,item)=>{
+                user = item;
+            })
+
+            let msgButton = document.getElementById('text-button');
+            let msgField = document.getElementById('text-field');
+
+            msgButton.addEventListener('click', ()=>{
+                createMessage(user,msgField.value,"sent");
+            })
+
+        </script>
 </body>
 
 </html>
