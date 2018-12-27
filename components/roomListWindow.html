@@ -40,7 +40,6 @@
 
     const R = new rooms.Rooms();
 
-    R.addNewRoom(3,"DUPA");
     R.incrementUsers(2);
 
     R.getAll().forEach((item) => {
@@ -57,6 +56,23 @@
       e.preventDefault();
       ipcRenderer.send('new-room',R);
     }
+
+    function reloadRooms(){
+      ul.innerHTML = '';
+      let r = new rooms.Rooms();
+      console.log(r.getAll());
+      r.getAll().forEach((item) => {
+        let li = document.createElement('li');
+        li.classList.add('list-group-item');
+        li.innerHTML =
+          ` <span> ${item.name}</span> <span>${item.users}/10</span>`;
+        ul.appendChild(li);
+      })
+    }
+
+    setInterval(()=>{
+        reloadRooms();
+    },2000);
 
   </script>
 </body>

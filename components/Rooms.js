@@ -1,42 +1,25 @@
-const rooms = [{
-        id: 0,
-        name: "Dupa room",
-        users:0
-    },
-    {
-        id: 1,
-        name: "Kolejny dupa room",
-        users: 0,
-    }
-]
+let fs = require('fs');
+let path = 'components/data/rooms.json'
+let rooms = JSON.parse(fs.readFileSync(path,'utf-8'));
 
-function Rooms(){
-    this.rooms = [
-    {
-        id: 0,
-        name: "Dupa room",
-        users:0
-    },
-    {
-        id: 1,
-        name: "Kolejny dupa room",
-        users: 0,
-    }]
-}
+function Rooms(){}
 
 Rooms.prototype.getAll = function(){
-    return this.rooms;
+    return JSON.parse(fs.readFileSync(path,'utf-8'));
 }
 
 /**
  * @param {number} roomId
  */
 Rooms.prototype.incrementUsers = function(roomId){
-    this.rooms.forEach( item => {
+    rooms.forEach( item => {
         if(item.id == roomId){
             item.users+=1;
         }
-    })
+    });
+    fs.writeFile(path,JSON.stringify(rooms),'utf-8', (err)=>{
+        if(err) throw err;
+    });
 };
 
 Rooms.prototype.addNewRoom = function(id, name){
@@ -45,10 +28,22 @@ Rooms.prototype.addNewRoom = function(id, name){
         name : name,
         users : 1
     }
-    this.rooms.push(room);
+    rooms.push(room);
+    fs.writeFile(path,JSON.stringify(rooms),'utf-8', (err)=>{
+        if(err) throw err;
+    });
+}
+
+Rooms.prototype.getNewId = function(){
+    let max = 0;
+    rooms.forEach(item => {
+        if(item.id>max){
+            max = item.id;
+        }
+    })
+    return max+1;
 }
 
 module.exports = {
-    rooms : rooms,
     Rooms: Rooms
 }

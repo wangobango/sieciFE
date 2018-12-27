@@ -72,7 +72,7 @@ ipcMain.on('new-nick', (e, item) => {
 
 ipcMain.on('new-room', (e, R) => {
     createNewRoomWindow();
-    newRoomWindow.webContents.send('new-room', R);
+    // newRoomWindow.webContents.send('new-room', R);
 })
 
 
