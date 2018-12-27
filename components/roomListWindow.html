@@ -38,6 +38,11 @@
       document.getElementById('nick-label').innerHTML = item;
     });
 
+    ipcRenderer.send('request-nick');
+    ipcRenderer.on('request-nick-answer', (e,item)=>{
+      document.getElementById('nick-label').innerHTML = item;
+    })
+
     const R = new rooms.Rooms();
 
     R.incrementUsers(2);

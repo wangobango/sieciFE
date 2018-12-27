@@ -75,6 +75,10 @@ ipcMain.on('new-room', (e, R) => {
     // newRoomWindow.webContents.send('new-room', R);
 })
 
+ipcMain.on('request-nick', (e) =>{
+    e.sender.send('request-nick-answer',user);
+})
+
 
 // APP EVENTS
 
