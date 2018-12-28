@@ -1,5 +1,5 @@
 let fs = require('fs');
-let path = 'components/data/rooms.json'
+let path = 'components/data/rooms.json';
 let rooms = JSON.parse(fs.readFileSync(path, 'utf-8'));
 
 function Rooms() {}

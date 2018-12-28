@@ -107,6 +107,10 @@ ipcMain.on('enter-game', (e,room) => {
     roomListWindow.close();
 })
 
+ipcMain.on('request-current-room', (e)=>{
+    e.sender.send('current-room-answer',currenCanvasRoom);
+})
+
 
 // APP EVENTS
 

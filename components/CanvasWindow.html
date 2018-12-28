@@ -18,7 +18,12 @@
 
     <div class="row">
         <div class="col-md-8" style="height:600px;border-right: 1px dashed #333;">
-            <canvas id="myCanvas" width="533" height="600" />
+            <div class="row" style="height:90%;">
+                <canvas id="myCanvas" width="533" height="600" />
+            </div>
+            <div class="row" style="padding-left:50px;">
+                <button type="button" class="btn btn-danger" id="clear-button">Clear</button>
+            </div>
         </div>
         <div class="col-md-4" style="height:600px;">
             <div class="row" style="height:80%;">
@@ -54,7 +59,7 @@
                     <div class="row panel-footer container">
                         <div class="col-lg-6">
                             <div class="row justify-content-center">
-                                <input type="text" class="form-control" id="text-field"/>
+                                <input type="text" class="form-control" id="text-field" />
                                 <button class="btn btn-primary text" id="text-button">Submit Message</button>
                                 <button class="btn btn-primary exit" id="exit-button">Exit</button>
                             </div>
@@ -65,14 +70,15 @@
         </div>
 
         <script>
-            var canvas, ctx, flag = false,
+            let w,h;
+            let canvas, ctx, flag = false,
                 prevX = 0,
                 currX = 0,
                 prevY = 0,
                 currY = 0,
                 dot_flag = false;
 
-            var x = "black",
+            let x = "black",
                 y = 2;
 
             function init() {
@@ -95,8 +101,6 @@
                 }, false);
             }
 
-
-
             function draw() {
                 ctx.beginPath();
                 ctx.moveTo(prevX, prevY);
@@ -108,10 +112,9 @@
             }
 
             function erase() {
-                var m = confirm("Want to clear");
+                let m = confirm("Want to clear");
                 if (m) {
                     ctx.clearRect(0, 0, w, h);
-                    document.getElementById("canvasimg").style.display = "none";
                 }
             }
 
@@ -151,47 +154,47 @@
             let fs = require('fs');
             let path = 'components/data/canvas.json'
             const ipcRenderer = require('electron').ipcRenderer;
+            const cS = require('./Canvas.js');
+            const canvasSerializer = new cS.Canvas();
 
-            // TODO serialize
+            // ctx.createImageData(w,h).data
             setInterval(() => {
                 let canvasContents = canvas.toDataURL();
-                let data = {
-                    image: canvasContents,
-                    date: Date.now()
+                let canvasData = {
+                    image: ctx.createImageData(w,h).data,
                 };
 
-                fs.writeFile(path, JSON.stringify(data), 'utf-8', (err) => {
-                    if (err) throw err;
-                });
+                // canvasSerializer.saveCanvas(canvasData);
+
             }, 3000)
+
 
             exit_button = document.getElementById('exit-button');
             exit_button.addEventListener('click', () => {
                 ipcRenderer.send('leave-gaming-room');
             })
 
-            function createMessage(author, text, type){
+            function createMessage(author, text, type) {
                 let currentdate = new Date();
-                let datetime = 
-                + currentdate.getHours() + ":"  
-                + currentdate.getMinutes() + ":" 
-                + currentdate.getSeconds();
+                let datetime = +currentdate.getHours() + ":" +
+                    currentdate.getMinutes() + ":" +
+                    currentdate.getSeconds();
 
                 let body = document.createElement('div')
                 let chat_col = document.createElement('div');
-                chat_col.classList.add('col-md-10','col-xs-10');
+                chat_col.classList.add('col-md-10', 'col-xs-10');
                 let message = document.createElement('div');
                 let message_value = document.createElement('p');
                 message_value.appendChild(document.createTextNode(text));
                 let time_stamp = document.createElement('time');
-                time_stamp.appendChild(document.createTextNode(datetime+' '+author));
+                time_stamp.appendChild(document.createTextNode(datetime + ' ' + author));
                 time_stamp.setAttribute("datetime", datetime);
-                if(type == 'sent'){
-                    body.classList.add('row','msg_container','base_sent');
-                    message.classList.add('messages','msg_sent');
+                if (type == 'sent') {
+                    body.classList.add('row', 'msg_container', 'base_sent');
+                    message.classList.add('messages', 'msg_sent');
                 } else {
-                    body.classList.add('row','msg_container','base_recive');
-                    message.classList.add('messages','msg_recive');
+                    body.classList.add('row', 'msg_container', 'base_recive');
+                    message.classList.add('messages', 'msg_recive');
                 }
 
                 message.append(message_value);
@@ -204,18 +207,28 @@
             }
 
             let user;
+            let current_room;
 
             ipcRenderer.send('request-nick');
-            ipcRenderer.on('request-nick-answer', (e,item)=>{
+            ipcRenderer.on('request-nick-answer', (e, item) => {
                 user = item;
             })
+
+            ipcRenderer.send('request-current-room');
+            ipcRenderer.on('current-room-answer', (e,room)=>{
+                current_room = room;
+                document.querySelector('title').innerHTML = room;
+            });
 
             let msgButton = document.getElementById('text-button');
             let msgField = document.getElementById('text-field');
 
-            msgButton.addEventListener('click', ()=>{
-                createMessage(user,msgField.value,"sent");
+            msgButton.addEventListener('click', () => {
+                createMessage(user, msgField.value, "sent");
             })
+
+            let clrButton = document.getElementById('clear-button');
+            clrButton.addEventListener('click',erase);
 
         </script>
 </body>
