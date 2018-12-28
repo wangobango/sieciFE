@@ -70,7 +70,52 @@
         </div>
 
         <script>
-            let w,h;
+            const cS = require('./Canvas.js');
+            const canvasSerializer = new cS.Canvas();
+
+            function Pixels() {
+                this.pixels = [];
+                canvasSerializer.clearJson();
+            }
+
+            Pixels.prototype.addPixel = function (pX, pY, cX, cY) {
+                let pixel = {
+                    'pX': pX,
+                    'pY': pY,
+                    'cX': cX,
+                    'cY': cY
+                }
+                this.pixels.push(pixel);
+            }
+
+            Pixels.prototype.getPixels = function () {
+                return this.pixels;
+            }
+
+            Pixels.prototype.savePixelsToJson = function () {
+                canvasSerializer.saveCanvas(this.pixels);
+            }
+
+            Pixels.prototype.appendPixelsToJson = function () {
+                canvasSerializer.appendToCanvas(this.pixels);
+                this.pixels = [];
+            }
+
+            Pixels.prototype.erase = function () {
+                this.pixels = [];
+                canvasSerializer.clearJson();
+            }
+
+            Pixels.prototype.drawFromTable = function(table){
+                table.forEach(item => {
+                    initializeDrawing(item.pX,item.pY,item.cX,item.cY);
+                })
+            }
+
+            // TODO dodać zapisywanie i wczytywanie do jsona za pomocą canvas serializaer + rysowanie 
+            // od razu z jsona fun(ctx  + canvas??)
+
+            let w, h;
             let canvas, ctx, flag = false,
                 prevX = 0,
                 currX = 0,
@@ -101,10 +146,23 @@
                 }, false);
             }
 
+            canvasPixels = new Pixels();
+
             function draw() {
                 ctx.beginPath();
                 ctx.moveTo(prevX, prevY);
                 ctx.lineTo(currX, currY);
+                ctx.strokeStyle = x;
+                ctx.lineWidth = y;
+                canvasPixels.addPixel(prevX, prevY, currX, currY);
+                ctx.stroke();
+                ctx.closePath();
+            }
+
+            function initializeDrawing(pX, pY, cX, cY) {
+                ctx.beginPath();
+                ctx.moveTo(pX, pY);
+                ctx.lineTo(cX, cY);
                 ctx.strokeStyle = x;
                 ctx.lineWidth = y;
                 ctx.stroke();
@@ -116,6 +174,7 @@
                 if (m) {
                     ctx.clearRect(0, 0, w, h);
                 }
+                canvasPixels.erase();
             }
 
             function findxy(res, e) {
@@ -151,23 +210,26 @@
 
             init();
 
+            canvasPixels.drawFromTable(canvasSerializer.getCanvas());
+
+            setInterval(() => {
+                canvasPixels.savePixelsToJson();
+            }, 2000);
+
             let fs = require('fs');
             let path = 'components/data/canvas.json'
             const ipcRenderer = require('electron').ipcRenderer;
-            const cS = require('./Canvas.js');
-            const canvasSerializer = new cS.Canvas();
 
             // ctx.createImageData(w,h).data
             setInterval(() => {
                 let canvasContents = canvas.toDataURL();
                 let canvasData = {
-                    image: ctx.createImageData(w,h).data,
+                    image: ctx.createImageData(w, h).data,
                 };
 
                 // canvasSerializer.saveCanvas(canvasData);
 
             }, 3000)
-
 
             exit_button = document.getElementById('exit-button');
             exit_button.addEventListener('click', () => {
@@ -215,7 +277,7 @@
             })
 
             ipcRenderer.send('request-current-room');
-            ipcRenderer.on('current-room-answer', (e,room)=>{
+            ipcRenderer.on('current-room-answer', (e, room) => {
                 current_room = room;
                 document.querySelector('title').innerHTML = room;
             });
@@ -228,8 +290,7 @@
             })
 
             let clrButton = document.getElementById('clear-button');
-            clrButton.addEventListener('click',erase);
-
+            clrButton.addEventListener('click', erase);
         </script>
 </body>
 

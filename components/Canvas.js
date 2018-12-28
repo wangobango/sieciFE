@@ -26,6 +26,12 @@ Canvas.prototype.appendToCanvas = function (canvasToSava) {
     }
 }
 
+Canvas.prototype.clearJson = function () {
+    fs.writeFile(path, JSON.stringify([]), 'utf-8', (err) => {
+        if (err) throw err;
+    });
+}
+
 module.exports = {
     Canvas: Canvas
 }
