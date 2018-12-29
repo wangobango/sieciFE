@@ -9,6 +9,8 @@ const {
 const path = require('path');
 const url = require('url');
 
+const client = require('./renderer');
+
 let roomListWindow;
 let nickWindow;
 let newRoomWindow;
@@ -35,7 +37,7 @@ function createNickWindow() {
     nickWindow = new BrowserWindow({
         width: 400,
         height: 200,
-        frame: false
+        frame: true
     });
     // nickWindow.loadFile('components/NickWindow.html');
     nickWindow.loadURL(url.format({
@@ -109,6 +111,10 @@ ipcMain.on('enter-game', (e,room) => {
 
 ipcMain.on('request-current-room', (e)=>{
     e.sender.send('current-room-answer',currenCanvasRoom);
+})
+
+client.client.on('data', (data)=>{
+    console.log(data);
 })
 
 

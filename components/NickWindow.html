@@ -24,8 +24,7 @@
     const electron = require('electron');
     const {ipcRenderer} = electron;
 
-    let connection = new conn.Connector();
-    connection.connect();
+    let connection = conn.client;
 
     const btn = document.getElementById('submit-nick-button');
     btn.addEventListener('click',sumitNick);
@@ -33,8 +32,9 @@
 
     function sumitNick(e) {
         e.preventDefault();
+        connection.write(inpt.value);
         ipcRenderer.send('new-nick',inpt.value);
-    }
+    };
 
 </script>
 </body>
