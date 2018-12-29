@@ -7,3 +7,5 @@ export const Users ={
         }
     ]
 };
+
+//TODO ! user serialization

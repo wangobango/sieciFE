@@ -20,9 +20,12 @@
     <button type="submit" id="submit-nick-button" class="btn btn-primary">Submit</button>
 </div>
 <script>
-    require('../renderer.js')
+    const conn = require('../renderer.js')
     const electron = require('electron');
     const {ipcRenderer} = electron;
+
+    let connection = new conn.Connector();
+    connection.connect();
 
     const btn = document.getElementById('submit-nick-button');
     btn.addEventListener('click',sumitNick);

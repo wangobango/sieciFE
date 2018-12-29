@@ -112,9 +112,6 @@
                 })
             }
 
-            // TODO dodać zapisywanie i wczytywanie do jsona za pomocą canvas serializaer + rysowanie 
-            // od razu z jsona fun(ctx  + canvas??)
-
             let w, h;
             let canvas, ctx, flag = false,
                 prevX = 0,
@@ -219,17 +216,6 @@
             let fs = require('fs');
             let path = 'components/data/canvas.json'
             const ipcRenderer = require('electron').ipcRenderer;
-
-            // ctx.createImageData(w,h).data
-            setInterval(() => {
-                let canvasContents = canvas.toDataURL();
-                let canvasData = {
-                    image: ctx.createImageData(w, h).data,
-                };
-
-                // canvasSerializer.saveCanvas(canvasData);
-
-            }, 3000)
 
             exit_button = document.getElementById('exit-button');
             exit_button.addEventListener('click', () => {
