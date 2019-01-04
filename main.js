@@ -10,19 +10,29 @@ const {
 const path = require('path');
 const url = require('url');
 
-const client = require('./renderer');
 const parser = require('./components/Parser');
 const rooms = require('./components/Rooms');
+
+let net = require('net');
+let port = 20000;
+let ip_addr = '127.0.0.1';
+let message_id_counter = 0;
+
+let client = new net.Socket();
+client.connect(port, ip_addr, () => {
+    console.log('Connection succesfull!');
+});
+
 
 let Rooms = new rooms.Rooms();
 let Parser = new parser.Parser();
 
 //TEST PARSING AND CONNECTION
 
-let data = Rooms.getAll();
-let DUPA = Parser.parse(JSON.stringify(data),0);
+// let data = Rooms.getAll();
+// let DUPA = Parser.parse(JSON.stringify(data),0);
 
-let DUPA2 = Parser.unparse(DUPA);
+// let DUPA2 = Parser.unparse(DUPA);
 
 //END TEST PARSING AND CONNECTION
 
@@ -65,7 +75,7 @@ function createNickWindow() {
     })
 }
 
-function createNewRoomWindow(){
+function createNewRoomWindow() {
     newRoomWindow = new BrowserWindow({
         width: 400,
         height: 200,
@@ -80,10 +90,10 @@ function createNewRoomWindow(){
     });
 }
 
-function createCanvasWindow(){
+function createCanvasWindow() {
     canvasWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 900,
+        height: 700,
     });
     canvasWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'components/CanvasWindow.html'),
@@ -100,11 +110,29 @@ function createCanvasWindow(){
 ipcMain.on('new-nick', (e, item) => {
     createWindow();
     user = item;
+    //Add sending nick to serwer
+    let pom = {
+        "type": "ANSWER",
+        "name": "NEW-USER",
+        "content": user
+    }
+    let data = Parser.parse(JSON.stringify(pom), message_id_counter);
+    message_id_counter++;
+    data.forEach(item => {
+        console.log(item)
+        if (item == data[1]) {
+            item.forEach(el => {
+                client.write(String(el), 'utf-8');
+            })
+        } else {
+            client.write(String(item), 'utf-8');
+        }
+    })
     roomListWindow.webContents.send('set-nick', item);
     nickWindow.close();
 });
 
-ipcMain.on('leave-gaming-room', ()=>{
+ipcMain.on('leave-gaming-room', () => {
     createWindow();
     canvasWindow.close();
 })
@@ -114,24 +142,23 @@ ipcMain.on('new-room', (e, R) => {
     // newRoomWindow.webContents.send('new-room', R);
 })
 
-ipcMain.on('request-nick', (e) =>{
-    e.sender.send('request-nick-answer',user);
+ipcMain.on('request-nick', (e) => {
+    e.sender.send('request-nick-answer', user);
 })
 
-ipcMain.on('enter-game', (e,room) => {
+ipcMain.on('enter-game', (e, room) => {
     currenCanvasRoom = room;
     createCanvasWindow();
     roomListWindow.close();
 })
 
-ipcMain.on('request-current-room', (e)=>{
-    e.sender.send('current-room-answer',currenCanvasRoom);
+ipcMain.on('request-current-room', (e) => {
+    e.sender.send('current-room-answer', currenCanvasRoom);
 })
 
-client.client.on('data', (data)=>{
-    console.log(data);
+ipcMain.on('exit-application', () => {
+    roomListWindow.close();
 })
-
 
 // APP EVENTS
 
@@ -139,12 +166,13 @@ app.on('ready', createNickWindow)
 
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
+        client.destroy();
         app.quit()
     }
 })
 
 app.on('activate', function () {
     if (roomListWindow === null) {
-        createWindow();        
+        createWindow();
     }
 })

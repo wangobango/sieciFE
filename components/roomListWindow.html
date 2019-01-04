@@ -22,7 +22,10 @@
       </h3>
       <ul id="room-list" class="list-group"></ul>
       <div class="row justify-content-center" style="padding-top: 10px;">
-          <button type="submit" id="submit-room-button" class="btn btn-primary">Add New Room</button>
+        <button type="submit" id="submit-room-button" class="btn btn-primary">Add New Room</button>
+      </div>
+      <div class="row justify-content-center" style="padding-top: 10px;">
+        <button type="submit" id="exit-application-button" class="btn btn-primary">Exit</button>
       </div>
     </div>
   </div>
@@ -39,7 +42,7 @@
     });
 
     ipcRenderer.send('request-nick');
-    ipcRenderer.on('request-nick-answer', (e,item)=>{
+    ipcRenderer.on('request-nick-answer', (e, item) => {
       document.getElementById('nick-label').innerHTML = item;
     })
 
@@ -55,14 +58,14 @@
 
     roomBtn.addEventListener('click', addNewRoom);
 
-    function addNewRoom(e){
+    function addNewRoom(e) {
       e.preventDefault();
-      ipcRenderer.send('new-room',R);      
+      ipcRenderer.send('new-room', R);
     }
 
-    function reloadRooms(){
+    function reloadRooms() {
       ul.innerHTML = '';
-      delete require.cache[require.resolve('./Rooms.js')]; 
+      delete require.cache[require.resolve('./Rooms.js')];
       let roomz = require('./Rooms.js');
       let rura = new roomz.Rooms();
       rura.getAll().forEach((item) => {
@@ -75,16 +78,20 @@
     }
 
     // Open canvas window
-    ul.addEventListener('dblclick', (event)=>{
+    ul.addEventListener('dblclick', (event) => {
       let pom = event.target.innerHTML.split('  ');
-      pom = pom[0].replace('<span>','').replace('</span>','');
-      ipcRenderer.send('enter-game',pom);
+      pom = pom[0].replace('<span>', '').replace('</span>', '');
+      ipcRenderer.send('enter-game', pom);
     })
 
-    setInterval(()=>{
+    setInterval(() => {
       reloadRooms();
-    },2000);
+    }, 2000);
 
+    const exitButton = document.getElementById('exit-application-button');
+    exitButton.addEventListener('click', () => {
+      ipcRenderer.send('exit-application');
+    })
   </script>
 </body>
 

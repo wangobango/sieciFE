@@ -62,10 +62,10 @@ class PackageStructure {
                 item.forEach(element => {
                     let str = '';
                     if (firstIteratio) {
-                        str = element.substring(element.indexOf('[')+1, element.length - 1);
+                        str = element.substring(element.indexOf('[') + 1, element.length - 1);
                         firstIteratio = false;
                     } else {
-                        str = element.substring(element.indexOf('[')+1, element.length - 1);
+                        str = element.substring(element.indexOf('[') + 1, element.length - 1);
                     }
                     pom += str;
                 });
@@ -95,12 +95,15 @@ class Parser {
         let pom = new PackageStructure(id);
         let temp = Parser.prototype.splitMessage(data);
         let CONTENT = [];
+        let start =  pom.createStartPackage();
         temp.forEach(element => {
             CONTENT.push(pom.createPackage(element));
         });
+        let stop = pom.createStopPackage();
+
         let final = {
-            "start": pom.createStartPackage(),
-            "stop": pom.createStopPackage(),
+            "start": start,
+            "stop": stop,
             "content": CONTENT
         };
 
@@ -115,6 +118,13 @@ class Parser {
         let pom = new PackageStructure();
         return pom.destructPackage(data);
 
+    }
+    sumArray(arr){
+        let sum = '';
+        arr.forEach(element =>{
+            sum+=element;
+        })
+        return sum;
     }
 }
 
