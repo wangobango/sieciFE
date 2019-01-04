@@ -1,4 +1,5 @@
 "use strict";
+"use babel";
 
 const {
     app,
@@ -10,6 +11,18 @@ const path = require('path');
 const url = require('url');
 
 const client = require('./renderer');
+const parser = require('./components/Parser');
+const rooms = require('./components/Rooms');
+
+let Rooms = new rooms.Rooms();
+let Parser = new parser.Parser();
+
+//TEST PARSING AND CONNECTION
+
+let data = Rooms.getAll();
+let DUPA = Parser.parse(JSON.stringify(data));
+
+//END TEST PARSING AND CONNECTION
 
 let roomListWindow;
 let nickWindow;
@@ -130,6 +143,6 @@ app.on('window-all-closed', function () {
 
 app.on('activate', function () {
     if (roomListWindow === null) {
-        createWindow()
+        createWindow();        
     }
 })
