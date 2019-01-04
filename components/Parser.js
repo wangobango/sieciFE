@@ -5,76 +5,121 @@
 let messageLength = 220;
 
 function lpad(value, padding = 3) {
-    var zeroes = new Array(padding+1).join("0");
+    var zeroes = new Array(padding + 1).join("0");
     return (zeroes + value).slice(-padding);
 }
 
 class PackageStructure {
     constructor(messageId) {
-        this.message_id = messageId;
-        this.package_id = 0;
+        if (messageId === undefined) {
+            this.message_id = 0;
+            this.package_id = 0;
+        } else {
+            this.message_id = messageId;
+            this.package_id = 0;
+        }
     }
 
-    createPackage(data){
+    createPackage(data) {
         let msg = data;
-        if(msg.length<220){
+        if (msg.length < 220) {
             let temp = 220 - msg.length;
-            for(let i = 0;i<temp;i++){
-                msg = msg+'';
+            for (let i = 0; i < temp; i++) {
+                msg = msg + '';
             }
-        } else if (msg.length>220){
-            throw new Error('Data too long to parse!');        
+        } else if (msg.length > 220) {
+            throw new Error('Data too long to parse!');
         }
 
-        let pom = String(lpad(this.message_id))+String(lpad(this.package_id))+'['+String(msg)+']'
-        this.package_id+=1;
+        let pom = String(lpad(this.message_id)) + String(lpad(this.package_id)) + '[' + String(msg) + ']'
+        this.package_id += 1;
         return pom;
     }
 
-    createStartPackage(){
-        let pom = 'START'+String(lpad(this.message_id))+String(lpad(this.package_id))
-        this.package_id+=1;
+    createStartPackage() {
+        let pom = 'START' + String(lpad(this.message_id)) + String(lpad(this.package_id))
+        this.package_id += 1;
         return pom;
     }
 
-    createStopPackage(){
-        let pom = 'STOP'+String(lpad(this.message_id))+String(lpad(this.package_id))
-        this.package_id+=1;
+    createStopPackage() {
+        let pom = 'STOP' + String(lpad(this.message_id)) + String(lpad(this.package_id))
+        this.package_id += 1;
         return pom;
     }
-}
 
-function Parser(){
-    this.fullMessage = '';
-}
+    //Accepts array of data, delets headers and footers, leaves pure content
+    destructPackage(data) {
+        let pom = '';
+        let firstIteratio = true;
+        let id = -1;
+        data.forEach(item => {
+            if (item.includes('START')) {
+                id = parseInt(item.substring(5));
+            } else if (item.includes('STOP')) {
 
-Parser.prototype.clearMessage = function(){
-    this.fullMessage = '';
-}
+            } else {
+                item.forEach(element => {
+                    let str = '';
+                    if (firstIteratio) {
+                        str = element.substring(element.indexOf('[')+1, element.length - 1);
+                        firstIteratio = false;
+                    } else {
+                        str = element.substring(element.indexOf('[')+1, element.length - 1);
+                    }
+                    pom += str;
+                });
+            }
+        });
 
-Parser.prototype.splitMessage = function(data){
-    return data.match(/[\s\S]{1,220}/g) || [];
-}
+        let result = {
+            "id": id,
+            "content": JSON.parse(pom)
+        };
 
-Parser.prototype.parse = function(data,id){
-    let pom = new PackageStructure(id);
-
-    let START = pom.createStartPackage();
-    let END = pom.createStopPackage();
-    let temp = Parser.prototype.splitMessage(data);
-    let CONTENT = [];
-    temp.forEach(element => {
-        CONTENT.push(pom.createPackage(element));        
-    });
-
-    let final = {
-        "start": START,
-        "stop": END,
-        "content": CONTENT
+        return result;
     }
-
-    return final;
 }
+
+class Parser {
+    constructor() {
+        this.fullMessage = '';
+    }
+    clearMessage() {
+        this.fullMessage = '';
+    }
+    splitMessage(data) {
+        return data.match(/[\s\S]{1,220}/g) || [];
+    }
+    parse(data, id) {
+        let pom = new PackageStructure(id);
+        let temp = Parser.prototype.splitMessage(data);
+        let CONTENT = [];
+        temp.forEach(element => {
+            CONTENT.push(pom.createPackage(element));
+        });
+        let final = {
+            "start": pom.createStartPackage(),
+            "stop": pom.createStopPackage(),
+            "content": CONTENT
+        };
+
+        let result = [];
+        result.push(final.start);
+        result.push(final.content);
+        result.push(final.stop);
+
+        return result;
+    }
+    unparse(data) {
+        let pom = new PackageStructure();
+        return pom.destructPackage(data);
+
+    }
+}
+
+
+
 
 module.exports = {
     Parser: Parser

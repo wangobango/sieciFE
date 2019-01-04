@@ -20,7 +20,9 @@ let Parser = new parser.Parser();
 //TEST PARSING AND CONNECTION
 
 let data = Rooms.getAll();
-let DUPA = Parser.parse(JSON.stringify(data));
+let DUPA = Parser.parse(JSON.stringify(data),0);
+
+let DUPA2 = Parser.unparse(DUPA);
 
 //END TEST PARSING AND CONNECTION
 
