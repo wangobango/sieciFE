@@ -1,17 +1,1 @@
-[{
-    "id": 0,
-    "name": "Example Game Room",
-    "users": 0
-}, {
-    "id": 1,
-    "name": "Another room",
-    "users": 1
-}, {
-    "id": 2,
-    "name": "asd",
-    "users": 1
-}, {
-    "id": 3,
-    "name": "Silly Room",
-    "users": 1
-}]
+[{"id":0,"name":"Example Game Room","users":0},{"id":1,"name":"Another room","users":1},{"id":2,"name":"asd","users":1},{"id":3,"name":"Silly Room","users":1},{"id":4,"name":"sdfsdf","users":1},{"id":5,"name":"fsdfd","users":1},{"id":6,"name":"dupa room","users":1},{"id":7,"name":"papaj","users":1}]
