@@ -19,9 +19,9 @@ class PackageStructure {
     }
 
     createPackage(data) {
-        let msg = data;
-        if (msg.length < messageLength) {
-            let temp = messageLength - msg.length;
+        let msg = '[' + data + ']';
+        if (msg.length < messageLength+3) {
+            let temp = 252 - msg.length;
             for (let i = 0; i < temp; i++) {
                 msg = msg + ' ';
             }
@@ -29,15 +29,23 @@ class PackageStructure {
             throw new Error('Data too long to parse!');
         }
 
-        return String(lpad(this.message_id)) + '[' + String(msg) + ']';
+        return String(lpad(this.message_id)) + String(msg);
     }
 
     createStartPackage() {
-        return 'START' + String(lpad(this.message_id));
+        let start = 'START' + String(lpad(this.message_id));
+        for (let i = 0; i < 255 - start.length; i++) {
+            start = start + ' ';
+        }
+        return start;
     }
 
     createStopPackage() {
-        return 'STOP' + String(lpad(this.message_id));
+        let stop = 'STOP' + String(lpad(this.message_id));
+        for (let i = 0; i < 255 - stop.length; i++) {
+            stop = stop + ' ';
+        }
+        return stop;
     }
 
     //Accepts array of data, delets headers and footers, leaves pure content
