@@ -23,7 +23,7 @@ class PackageStructure {
         if (msg.length < messageLength) {
             let temp = messageLength - msg.length;
             for (let i = 0; i < temp; i++) {
-                msg = msg + '';
+                msg = msg + ' ';
             }
         } else if (msg.length > messageLength) {
             throw new Error('Data too long to parse!');
