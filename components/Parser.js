@@ -2,7 +2,7 @@
 "use strict";
 
 
-let messageLength = 220;
+let messageLength = 250;
 
 function lpad(value, padding = 3) {
     var zeroes = new Array(padding + 1).join("0");
@@ -13,39 +13,31 @@ class PackageStructure {
     constructor(messageId) {
         if (messageId === undefined) {
             this.message_id = 0;
-            this.package_id = 0;
         } else {
             this.message_id = messageId;
-            this.package_id = 0;
         }
     }
 
     createPackage(data) {
         let msg = data;
-        if (msg.length < 220) {
-            let temp = 220 - msg.length;
+        if (msg.length < messageLength) {
+            let temp = messageLength - msg.length;
             for (let i = 0; i < temp; i++) {
                 msg = msg + '';
             }
-        } else if (msg.length > 220) {
+        } else if (msg.length > messageLength) {
             throw new Error('Data too long to parse!');
         }
 
-        let pom = String(lpad(this.message_id)) + String(lpad(this.package_id)) + '[' + String(msg) + ']'
-        this.package_id += 1;
-        return pom;
+        return String(lpad(this.message_id)) + '[' + String(msg) + ']';
     }
 
     createStartPackage() {
-        let pom = 'START' + String(lpad(this.message_id)) + String(lpad(this.package_id))
-        this.package_id += 1;
-        return pom;
+        return 'START' + String(lpad(this.message_id));
     }
 
     createStopPackage() {
-        let pom = 'STOP' + String(lpad(this.message_id)) + String(lpad(this.package_id))
-        this.package_id += 1;
-        return pom;
+        return 'STOP' + String(lpad(this.message_id));
     }
 
     //Accepts array of data, delets headers and footers, leaves pure content
@@ -89,7 +81,7 @@ class Parser {
         this.fullMessage = '';
     }
     splitMessage(data) {
-        return data.match(/[\s\S]{1,220}/g) || [];
+        return data.match(/[\s\S]{1,250}/g) || [];
     }
     parse(data, id) {
         let pom = new PackageStructure(id);
