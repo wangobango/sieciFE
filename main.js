@@ -135,17 +135,16 @@ ipcMain.on('new-nick', (e, item) => {
 });
 
 ipcMain.on('new-room-added', (e, room) => {
-    console.log("dupa");
     let pom = {
         "type": "REQUEST",
         "name": "NEW-ROOM",
         "content": room
     }
-    let data = Parser.parse(JSON.stringify(pom), 22);
+    let data = Parser.parse(JSON.stringify(pom), message_id_counter);
+    message_id_counter++;
     data.forEach(el => {
         client.write(String(el), 'utf-8');
     })
-    // roomListWindow.webContents.send('new-room-added', room);
     newRoomWindow.close();
 })
 
@@ -156,18 +155,6 @@ ipcMain.on('leave-gaming-room', () => {
 
 ipcMain.on('new-room-window-open', (e, R) => {
     createNewRoomWindow();
-    console.log("dupa");
-    let pom = {
-        "type": "REQUEST",
-        "name": "NEW-ROOM",
-        "content": {
-            "name": "moj pokuj"
-        }
-    }
-    let data = Parser.parse(JSON.stringify(pom), 22);
-    data.forEach(el => {
-        client.write(String(el), 'utf-8');
-    })
     // newRoomWindow.webContents.send('new-room', R);
 })
 
