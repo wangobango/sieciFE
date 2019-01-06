@@ -43,6 +43,19 @@ let canvasWindow;
 let user = '';
 let currenCanvasRoom;
 
+function sendData(data,client){
+    data.forEach(item => {
+        console.log(item)
+        if (item == data[1]) {
+            item.forEach(el => {
+                client.write(String(el), 'utf-8');
+            })
+        } else {
+            client.write(String(item), 'utf-8');
+        }
+    })
+}
+
 function createWindow() {
     roomListWindow = new BrowserWindow({
         width: 300,
@@ -130,6 +143,15 @@ ipcMain.on('new-nick', (e, item) => {
             client.write(String(item), 'utf-8');
         }
     })
+    
+    let pom = {
+        "type": "REQUEST",
+        "name": "GET-ROOM-LIST",
+        "content" : ""
+    }
+    data = Parser.parse(JSON.stringify(pom2), message_id_counter);
+    sendData(data,client);
+    
     roomListWindow.webContents.send('set-nick', item);
     nickWindow.close();
 });
