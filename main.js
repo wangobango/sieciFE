@@ -112,9 +112,11 @@ ipcMain.on('new-nick', (e, item) => {
     user = item;
     //Add sending nick to serwer
     let pom = {
-        "type": "ANSWER",
+        "type": "REQUEST",
         "name": "NEW-USER",
-        "content": user
+        "content": {
+            "name": user
+        }
     }
     let data = Parser.parse(JSON.stringify(pom), message_id_counter);
     message_id_counter++;
@@ -132,13 +134,40 @@ ipcMain.on('new-nick', (e, item) => {
     nickWindow.close();
 });
 
+ipcMain.on('new-room-added', (e, room) => {
+    console.log("dupa");
+    let pom = {
+        "type": "REQUEST",
+        "name": "NEW-ROOM",
+        "content": room
+    }
+    let data = Parser.parse(JSON.stringify(pom), 22);
+    data.forEach(el => {
+        client.write(String(el), 'utf-8');
+    })
+    // roomListWindow.webContents.send('new-room-added', room);
+    newRoomWindow.close();
+})
+
 ipcMain.on('leave-gaming-room', () => {
     createWindow();
     canvasWindow.close();
 })
 
-ipcMain.on('new-room', (e, R) => {
+ipcMain.on('new-room-window-open', (e, R) => {
     createNewRoomWindow();
+    console.log("dupa");
+    let pom = {
+        "type": "REQUEST",
+        "name": "NEW-ROOM",
+        "content": {
+            "name": "moj pokuj"
+        }
+    }
+    let data = Parser.parse(JSON.stringify(pom), 22);
+    data.forEach(el => {
+        client.write(String(el), 'utf-8');
+    })
     // newRoomWindow.webContents.send('new-room', R);
 })
 
