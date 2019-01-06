@@ -43,6 +43,19 @@ let canvasWindow;
 let user = '';
 let currenCanvasRoom;
 
+function sendData(data,client){
+    data.forEach(item => {
+        console.log(item)
+        if (item == data[1]) {
+            item.forEach(el => {
+                client.write(String(el), 'utf-8');
+            })
+        } else {
+            client.write(String(item), 'utf-8');
+        }
+    })
+}
+
 function createWindow() {
     roomListWindow = new BrowserWindow({
         width: 300,
@@ -112,9 +125,11 @@ ipcMain.on('new-nick', (e, item) => {
     user = item;
     //Add sending nick to serwer
     let pom = {
-        "type": "ANSWER",
+        "type": "REQUEST",
         "name": "NEW-USER",
-        "content": user
+        "content": {
+            "name": user
+        }
     }
     let data = Parser.parse(JSON.stringify(pom), message_id_counter);
     message_id_counter++;
@@ -128,16 +143,39 @@ ipcMain.on('new-nick', (e, item) => {
             client.write(String(item), 'utf-8');
         }
     })
+    
+    let pom = {
+        "type": "REQUEST",
+        "name": "GET-ROOM-LIST",
+        "content" : ""
+    }
+    data = Parser.parse(JSON.stringify(pom2), message_id_counter);
+    sendData(data,client);
+    
     roomListWindow.webContents.send('set-nick', item);
     nickWindow.close();
 });
+
+ipcMain.on('new-room-added', (e, room) => {
+    let pom = {
+        "type": "REQUEST",
+        "name": "NEW-ROOM",
+        "content": room
+    }
+    let data = Parser.parse(JSON.stringify(pom), message_id_counter);
+    message_id_counter++;
+    data.forEach(el => {
+        client.write(String(el), 'utf-8');
+    })
+    newRoomWindow.close();
+})
 
 ipcMain.on('leave-gaming-room', () => {
     createWindow();
     canvasWindow.close();
 })
 
-ipcMain.on('new-room', (e, R) => {
+ipcMain.on('new-room-window-open', (e, R) => {
     createNewRoomWindow();
     // newRoomWindow.webContents.send('new-room', R);
 })

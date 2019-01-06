@@ -60,7 +60,7 @@
 
     function addNewRoom(e) {
       e.preventDefault();
-      ipcRenderer.send('new-room', R);
+      ipcRenderer.send('new-room-window-open', R);
     }
 
     function reloadRooms() {
