@@ -43,17 +43,8 @@ let canvasWindow;
 let user = '';
 let currenCanvasRoom;
 
-function sendData(data,client){
-    data.forEach(item => {
-        console.log(item)
-        if (item == data[1]) {
-            item.forEach(el => {
-                client.write(String(el), 'utf-8');
-            })
-        } else {
-            client.write(String(item), 'utf-8');
-        }
-    })
+function sendData(data, client){
+    client.write(String(data), 'utf-8');
 }
 
 function createWindow() {
@@ -132,19 +123,10 @@ ipcMain.on('new-nick', (e, item) => {
         }
     }
     let data = Parser.parse(JSON.stringify(pom), message_id_counter);
-    message_id_counter++;
-    data.forEach(item => {
-        console.log(item)
-        if (item == data[1]) {
-            item.forEach(el => {
-                client.write(String(el), 'utf-8');
-            })
-        } else {
-            client.write(String(item), 'utf-8');
-        }
-    })
+    console.log(data);
+    client.write(String(data), 'utf-8');
     
-    let pom = {
+    let pom2 = {
         "type": "REQUEST",
         "name": "GET-ROOM-LIST",
         "content" : ""
@@ -160,13 +142,14 @@ ipcMain.on('new-room-added', (e, room) => {
     let pom = {
         "type": "REQUEST",
         "name": "NEW-ROOM",
-        "content": room
+        "content": {
+            "name": room
+        }
     }
+    console.log(JSON.stringify(pom));
     let data = Parser.parse(JSON.stringify(pom), message_id_counter);
     message_id_counter++;
-    data.forEach(el => {
-        client.write(String(el), 'utf-8');
-    })
+    client.write(String(data), 'utf-8');
     newRoomWindow.close();
 })
 

@@ -19,25 +19,11 @@ class PackageStructure {
     }
 
     createPackage(data) {
-        let msg = '[' + data + ']';
-        if (msg.length < messageLength+3) {
-            let temp = 252 - msg.length;
-            for (let i = 0; i < temp; i++) {
-                msg = msg + ' ';
-            }
-        } else if (msg.length > messageLength) {
-            throw new Error('Data too long to parse!');
-        }
-
-        return String(lpad(this.message_id)) + String(msg);
+        return '[' + data + ']';
     }
 
     createStartPackage() {
-        let start = 'START' + String(lpad(this.message_id));
-        for (let i = 0; i < 255 - start.length; i++) {
-            start = start + ' ';
-        }
-        return start;
+        return 'START' + String(lpad(this.message_id));
     }
 
     createStopPackage() {
@@ -92,28 +78,10 @@ class Parser {
         return data.match(/[\s\S]{1,250}/g) || [];
     }
     parse(data, id) {
-        let pom = new PackageStructure(id);
-        let temp = Parser.prototype.splitMessage(data);
-        let CONTENT = [];
-        let start =  pom.createStartPackage();
-        temp.forEach(element => {
-            CONTENT.push(pom.createPackage(element));
-        });
-        let stop = pom.createStopPackage();
 
-        let final = {
-            "start": start,
-            "stop": stop,
-            "content": CONTENT
-        };
-
-        let result = [];
-        result.push(final.start);
-        result.push(final.content);
-        result.push(final.stop);
-
-        return result;
+        return 'START' + data + 'STOP';
     }
+
     unparse(data) {
         let pom = new PackageStructure();
         return pom.destructPackage(data);
