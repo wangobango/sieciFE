@@ -44,7 +44,11 @@
     ipcRenderer.send('request-nick');
     ipcRenderer.on('request-nick-answer', (e, item) => {
       document.getElementById('nick-label').innerHTML = item;
-    })
+    });
+
+    ipcRenderer.on('rooms-update', (e, rooms) => {
+
+    });
 
     const R = new rooms.Rooms();
 
@@ -82,7 +86,7 @@
       let pom = event.target.innerHTML.split('  ');
       pom = pom[0].replace('<span>', '').replace('</span>', '');
       ipcRenderer.send('enter-game', pom);
-    })
+    });
 
     setInterval(() => {
       reloadRooms();

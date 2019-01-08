@@ -83,9 +83,8 @@ class Parser {
     }
 
     unparse(data) {
-        let pom = new PackageStructure();
-        return pom.destructPackage(data);
-
+        let pom = data.substring(data.indexOf('START')+5, data.indexOf('STOP'));
+        return JSON.parse(pom);
     }
     sumArray(arr){
         let sum = '';

@@ -13,7 +13,7 @@ Rooms.prototype.getAll = function () {
  */
 Rooms.prototype.incrementUsers = function (roomId) {
     rooms.forEach(item => {
-        if (item.id == roomId) {
+        if (item.id === roomId) {
             item.users += 1;
         }
     });
@@ -82,7 +82,14 @@ Rooms.prototype.getRoomByName = function (name) {
         }
     })
     return room;
-}
+};
+
+Rooms.prototype.deleteAllRooms = function () {
+    rooms = [];
+    fs.writeFile(path, JSON.stringify(rooms), 'utf-8', (err) => {
+        if (err) throw err;
+    });
+};
 
 module.exports = {
     Rooms: Rooms
