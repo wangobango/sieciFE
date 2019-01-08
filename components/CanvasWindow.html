@@ -272,6 +272,7 @@
             let msgField = document.getElementById('text-field');
 
             msgButton.addEventListener('click', () => {
+                ipcRenderer.send('chat-msg-sent', msgField.value)
                 createMessage(user, msgField.value, "sent");
             })
 

@@ -148,7 +148,6 @@ ipcMain.on('new-room-added', (e, room) => {
     }
     console.log(JSON.stringify(pom));
     let data = Parser.parse(JSON.stringify(pom), message_id_counter);
-    message_id_counter++;
     client.write(String(data), 'utf-8');
     newRoomWindow.close();
 })
@@ -157,6 +156,18 @@ ipcMain.on('leave-gaming-room', () => {
     createWindow();
     canvasWindow.close();
 })
+
+ipcMain.on('chat-msg-sent', (e, text) => {
+    let pom = {
+        "type": "INFO",
+        "name": "CHAT-MSG",
+        "content": {
+            "text": text    
+        }
+    };
+    let data = Parser.parse(JSON.stringify(pom), message_id_counter);
+    client.write(String(data), 'utf-8');
+});
 
 ipcMain.on('new-room-window-open', (e, R) => {
     createNewRoomWindow();
