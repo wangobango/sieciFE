@@ -232,6 +232,13 @@
                 ipcRenderer.send('request-chat-msgs');
             },1000)
 
+            ipcRenderer.on('answer-chat-messages', (e,body)=>{
+                console.log(body);
+                body.forEach(el =>{
+                    createMessage("dupa",el.text,'other');
+                })
+            })
+
 
             exit_button = document.getElementById('exit-button');
             exit_button.addEventListener('click', () => {
@@ -269,13 +276,6 @@
                 let panel = document.getElementById('main-chat-panel');
                 panel.appendChild(body);
             }
-
-
-            ipcRenderer.on('answer-chat-messages', (body)=>{
-                body.forEach(el =>{
-                    createMessage("dupa",el.text,'other');
-                })
-            })
 
             let user;
             let current_room;
