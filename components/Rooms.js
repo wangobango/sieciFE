@@ -22,11 +22,13 @@ Rooms.prototype.incrementUsers = function (roomId) {
     });
 };
 
-Rooms.prototype.addNewRoom = function (name) {
+Rooms.prototype.addNewRoom = function (name,ownerid,users,password) {
     let room = {
         id: Rooms.prototype.getNewId(),
         name: name,
-        users: 1
+        ownerid: ownerid,
+        users: users,
+        password: password
     }
     if (name != '') {
         rooms.push(room);
@@ -36,11 +38,12 @@ Rooms.prototype.addNewRoom = function (name) {
     }
 }
 
-Rooms.prototype.addNewRoomWithId = function (id, name) {
+Rooms.prototype.addNewRoomWithId = function (id, name, ownerid, users) {
     let room = {
         id: id,
         name: name,
-        users: 1
+        users: users,
+        ownerid: ownerid
     }
     if (name != '') {
         rooms.push(room);

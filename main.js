@@ -14,6 +14,7 @@ const canvasPath = 'components/data/canvas.json';
 const ipcRenderer = require('electron').ipcRenderer;
 const parser = require('./components/Parser');
 const rooms = require('./components/Rooms');
+const canvas = require('./components/Canvas');
 
 let net = require('net');
 let port = 20000;
@@ -29,6 +30,7 @@ client.connect(port, ip_addr, () => {
 
 let Rooms = new rooms.Rooms();
 let Parser = new parser.Parser();
+let Canvas  = new canvas.Canvas();
 
 let roomListWindow;
 let nickWindow;
@@ -68,23 +70,6 @@ function createNickWindow() {
         protocol: 'file:',
         slashes: true
     }));
-    // setInterval(() => {
-    //     let data = client.read();
-    //     if(data != null) {
-    //         data = String(data);
-    //         buffor += data;
-    //         if(buffor.includes('STOP')) {
-    //             let message = buffor.substring(buffor.indexOf('START'), buffor.indexOf('STOP')+4);
-    //             buffor.slice(buffor.indexOf('STOP')+4);
-    //             message = Parser.unparse(message);
-    //             if (message.type = "ANSWER") {
-    //                 if (message.name = "GET-ROOM-LIST") {
-    //                     message.content.forEach(el => console.log(el));
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }, 2000);
     nickWindow.on('closed', () => {
         nickWindow = null;
     })
@@ -190,6 +175,7 @@ ipcMain.on('syn_canvas', (e, pixels, currentRoom) => {
         "content": content
     };
     let data = Parser.parse(JSON.stringify(pom), message_id_counter);
+    message_id_counter++;
     client.write(String(data), 'utf-8');
 });
 
@@ -204,12 +190,30 @@ ipcMain.on('request-nick', (e) => {
 
 ipcMain.on('enter-game', (e, room) => {
     currenCanvasRoom = room;
+    let content = {
+        "roomName": currenCanvasRoom
+    }
+
+    let pom = {
+        "type": "REQUEST",
+        "name": "JOIN_ROOM",
+        "content": "",
+        "name": room
+    }
+
+    let data = Parser.parse(JSON.stringify(pom), message_id_counter);
+    message_id_counter++;
+    client.write(String(data), 'utf-8')
     createCanvasWindow();
     roomListWindow.close();
 })
 
 ipcMain.on('request-current-room', (e) => {
-    e.sender.send('current-room-answer', currenCanvasRoom);
+    let rum = {
+        "name": currenCanvasRoom,
+        "owner": user
+    }
+    e.sender.send('current-room-answer', rum);
 })
 
 ipcMain.on('exit-application', () => {
@@ -236,6 +240,14 @@ client.on('data', (d) => {
                         Rooms.addNewRoom(el.name);
                     });
                 }
+            } else if (message.type = "INFO") {
+                if (message.type == "SYN_CANVAS") {
+                    console.log(message);
+                    Canvas.saveCanvas(message.content);
+                } else if(message.type == "NEW_ROOM"){
+
+                }
+
             }
         }
     }
