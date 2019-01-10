@@ -56,7 +56,7 @@
       let li = document.createElement('li');
       li.classList.add('list-group-item');
       li.innerHTML =
-        ` <span> ${item.name}</span> <span>${item.users}/10</span>`;
+        `<span>${item.name}</span> <span>${item.users}/10</span>`;
       ul.appendChild(li);
     })
 
@@ -76,7 +76,7 @@
         let li = document.createElement('li');
         li.classList.add('list-group-item');
         li.innerHTML =
-          ` <span> ${item.name}</span>  <span>${item.users}/10</span>`;
+          ` <span>${item.name}</span>  <span>${item.users}/10</span>`;
         ul.appendChild(li);
       })
     }
@@ -88,9 +88,9 @@
       ipcRenderer.send('enter-game', pom);
     });
 
-    // setInterval(() => {
-    //   reloadRooms();
-    // }, 2000);
+    setInterval(() => {
+      reloadRooms();
+    }, 2000);
 
     const exitButton = document.getElementById('exit-application-button');
     exitButton.addEventListener('click', () => {

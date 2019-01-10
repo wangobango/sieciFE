@@ -243,11 +243,11 @@ client.on('data', (d) => {
             let message = buffor.substring(buffor.indexOf('START'), buffor.indexOf('STOP') + 4);
             buffor.slice(buffor.indexOf('STOP') + 4);
             message = Parser.unparse(message);
+            console.log(message);
             if (message.type = "ANSWER") {
                 if (message.name = "GET_ROOM_LIST") {
                     console.log(message.content.length);
-                    if (message.content.length > 2) {
-                        console.log("DUPA");
+                    if (message.content.length) {
                         message.content.forEach(el => {
                             Rooms.addNewRoom(el.name, el.ownerId, el.users);
                         });
@@ -255,10 +255,9 @@ client.on('data', (d) => {
                 }
             } else if (message.type = "INFO") {
                 if (message.name == "SYN_CANVAS") {
-                    console.log(message);
                     Canvas.saveCanvas(message.content);
                 } else if (message.type == "NEW_ROOM") {
-                    console.log(message);
+                    Rooms.addNewRoom(message.content.name, message.content.ownerId, message.content.users);
                 }
 
             }
