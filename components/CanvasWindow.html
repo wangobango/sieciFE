@@ -15,7 +15,7 @@
         crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
-
+    <div class="row" id="roomName"></div>
     <div class="row">
         <div class="col-md-8" style="height:600px;border-right: 1px dashed #333;">
             <div class="row" style="height:90%;">
@@ -209,13 +209,16 @@
 
             canvasPixels.drawFromTable(canvasSerializer.getCanvas());
 
-            setInterval(() => {
-                canvasPixels.savePixelsToJson();
-            }, 2000);
+
 
             let fs = require('fs');
             let path = 'components/data/canvas.json'
             const ipcRenderer = require('electron').ipcRenderer;
+
+            setInterval(() => {
+                canvasPixels.savePixelsToJson();
+                ipcRenderer.send("syn_canvas", canvasPixels.getPixels(), current_room);
+            }, 2000);
 
             exit_button = document.getElementById('exit-button');
             exit_button.addEventListener('click', () => {
@@ -272,6 +275,7 @@
             let msgField = document.getElementById('text-field');
 
             msgButton.addEventListener('click', () => {
+                ipcRenderer.send('chat-msg-sent', msgField.value)
                 createMessage(user, msgField.value, "sent");
             })
 

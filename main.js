@@ -4,12 +4,14 @@
 const {
     app,
     BrowserWindow,
-    ipcMain
+    ipcMain,
 } = require('electron')
 
 const path = require('path');
 const url = require('url');
+const canvasPath = 'components/data/canvas.json';
 
+const ipcRenderer = require('electron').ipcRenderer;
 const parser = require('./components/Parser');
 const rooms = require('./components/Rooms');
 
@@ -17,6 +19,7 @@ let net = require('net');
 let port = 20000;
 let ip_addr = '127.0.0.1';
 let message_id_counter = 0;
+let buffor = '';
 
 let client = new net.Socket();
 client.connect(port, ip_addr, () => {
@@ -27,15 +30,6 @@ client.connect(port, ip_addr, () => {
 let Rooms = new rooms.Rooms();
 let Parser = new parser.Parser();
 
-//TEST PARSING AND CONNECTION
-
-// let data = Rooms.getAll();
-// let DUPA = Parser.parse(JSON.stringify(data),0);
-
-// let DUPA2 = Parser.unparse(DUPA);
-
-//END TEST PARSING AND CONNECTION
-
 let roomListWindow;
 let nickWindow;
 let newRoomWindow;
@@ -43,17 +37,8 @@ let canvasWindow;
 let user = '';
 let currenCanvasRoom;
 
-function sendData(data,client){
-    data.forEach(item => {
-        console.log(item)
-        if (item == data[1]) {
-            item.forEach(el => {
-                client.write(String(el), 'utf-8');
-            })
-        } else {
-            client.write(String(item), 'utf-8');
-        }
-    })
+function sendData(data, client) {
+    client.write(String(data), 'utf-8');
 }
 
 function createWindow() {
@@ -83,6 +68,23 @@ function createNickWindow() {
         protocol: 'file:',
         slashes: true
     }));
+    // setInterval(() => {
+    //     let data = client.read();
+    //     if(data != null) {
+    //         data = String(data);
+    //         buffor += data;
+    //         if(buffor.includes('STOP')) {
+    //             let message = buffor.substring(buffor.indexOf('START'), buffor.indexOf('STOP')+4);
+    //             buffor.slice(buffor.indexOf('STOP')+4);
+    //             message = Parser.unparse(message);
+    //             if (message.type = "ANSWER") {
+    //                 if (message.name = "GET-ROOM-LIST") {
+    //                     message.content.forEach(el => console.log(el));
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }, 2000);
     nickWindow.on('closed', () => {
         nickWindow = null;
     })
@@ -132,26 +134,16 @@ ipcMain.on('new-nick', (e, item) => {
         }
     }
     let data = Parser.parse(JSON.stringify(pom), message_id_counter);
-    message_id_counter++;
-    data.forEach(item => {
-        console.log(item)
-        if (item == data[1]) {
-            item.forEach(el => {
-                client.write(String(el), 'utf-8');
-            })
-        } else {
-            client.write(String(item), 'utf-8');
-        }
-    })
-    
-    let pom = {
+    client.write(String(data), 'utf-8');
+
+    let pom2 = {
         "type": "REQUEST",
         "name": "GET-ROOM-LIST",
-        "content" : ""
+        "content": ""
     }
     data = Parser.parse(JSON.stringify(pom2), message_id_counter);
-    sendData(data,client);
-    
+    sendData(data, client);
+
     roomListWindow.webContents.send('set-nick', item);
     nickWindow.close();
 });
@@ -160,13 +152,13 @@ ipcMain.on('new-room-added', (e, room) => {
     let pom = {
         "type": "REQUEST",
         "name": "NEW-ROOM",
-        "content": room
+        "content": {
+            "name": room
+        }
     }
+    console.log(JSON.stringify(pom));
     let data = Parser.parse(JSON.stringify(pom), message_id_counter);
-    message_id_counter++;
-    data.forEach(el => {
-        client.write(String(el), 'utf-8');
-    })
+    client.write(String(data), 'utf-8');
     newRoomWindow.close();
 })
 
@@ -174,6 +166,32 @@ ipcMain.on('leave-gaming-room', () => {
     createWindow();
     canvasWindow.close();
 })
+
+ipcMain.on('chat-msg-sent', (e, text) => {
+    let pom = {
+        "type": "INFO",
+        "name": "CHAT-MSG",
+        "content": {
+            "text": text
+        }
+    };
+    let data = Parser.parse(JSON.stringify(pom), message_id_counter);
+    client.write(String(data), 'utf-8');
+});
+
+ipcMain.on('syn_canvas', (e, pixels, currentRoom) => {
+    let content = {
+        "pixels": pixels,
+        "currentRoom": currentRoom
+    };
+    let pom = {
+        "type": "REQUEST",
+        "name": "SYN_CANVAS",
+        "content": content
+    };
+    let data = Parser.parse(JSON.stringify(pom), message_id_counter);
+    client.write(String(data), 'utf-8');
+});
 
 ipcMain.on('new-room-window-open', (e, R) => {
     createNewRoomWindow();
@@ -198,12 +216,40 @@ ipcMain.on('exit-application', () => {
     roomListWindow.close();
 })
 
+ipcMain.on('ANSWER_GET_ROOM_LIST', (e, content) => {
+
+});
+//CLIENT RECIVE DATA EVENTS
+
+client.on('data', (d) => {
+    let data = d;
+    if (data != null) {
+        data = String(data);
+        buffor += data;
+        if (buffor.includes('STOP')) {
+            let message = buffor.substring(buffor.indexOf('START'), buffor.indexOf('STOP') + 4);
+            buffor.slice(buffor.indexOf('STOP') + 4);
+            message = Parser.unparse(message);
+            if (message.type = "ANSWER") {
+                if (message.name = "GET-ROOM-LIST") {
+                    message.content.forEach(el => {
+                        Rooms.addNewRoom(el.name);
+                    });
+                }
+            }
+        }
+    }
+})
+
 // APP EVENTS
 
-app.on('ready', createNickWindow)
+app.on('ready', () => {
+    createNickWindow();
+});
 
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
+        Rooms.deleteAllRooms();
         client.destroy();
         app.quit()
     }
