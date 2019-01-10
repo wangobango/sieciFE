@@ -227,6 +227,12 @@
                 canvasPixels.drawFromTable(canvasSerializer.getCanvas());
             }, 1000);
 
+            //chat interval
+            setInterval(()=>{
+                ipcRenderer.send('request-chat-msgs');
+            })
+
+
             exit_button = document.getElementById('exit-button');
             exit_button.addEventListener('click', () => {
                 ipcRenderer.send('leave-gaming-room');
@@ -263,6 +269,13 @@
                 let panel = document.getElementById('main-chat-panel');
                 panel.appendChild(body);
             }
+
+
+            ipcRenderer.on('answer-chat-messages', (body)=>{
+                body.forEach(el =>{
+                    createMessage("dupa",el.text,'other');
+                })
+            })
 
             let user;
             let current_room;

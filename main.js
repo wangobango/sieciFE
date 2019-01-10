@@ -39,6 +39,7 @@ let newRoomWindow;
 let canvasWindow;
 let user = '';
 let currenCanvasRoom;
+let chat_messages = [];
 
 function sendData(data, client) {
     client.write(String(data), 'utf-8');
@@ -233,6 +234,12 @@ ipcMain.on('exit-application', () => {
 ipcMain.on('ANSWER_GET_ROOM_LIST', (e, content) => {
 
 });
+
+ipcMain.on('request-chat-msgs' , (e) =>{
+    e.sender.send('answer-chat-messages',chat_messages);
+    chat_messages = [];
+})
+
 //CLIENT RECIVE DATA EVENTS
 
 client.on('data', (d) => {
@@ -259,8 +266,10 @@ client.on('data', (d) => {
             } else if (message.type = "INFO") {
                 if (message.name == "SYN_CANVAS") {
                     Canvas.saveCanvas(message.content);
-                } else if (message.type == "NEW_ROOM") {
+                } else if (message.name == "NEW_ROOM") {
                     Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests);
+                } else if (message.name == "CHAT_MSG"){
+                    chat_messages.push(message.content);
                 }
 
             }
