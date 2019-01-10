@@ -18,7 +18,7 @@ const canvas = require('./components/Canvas');
 
 let net = require('net');
 let port = 20000;
-let ip_addr = '127.0.0.1';
+let ip_addr = '192.168.1.16';
 let message_id_counter = 0;
 let buffor = '';
 
@@ -241,7 +241,7 @@ client.on('data', (d) => {
                     });
                 }
             } else if (message.type = "INFO") {
-                if (message.type == "SYN_CANVAS") {
+                if (message.name == "SYN_CANVAS") {
                     console.log(message);
                     Canvas.saveCanvas(message.content);
                 } else if(message.type == "NEW_ROOM"){
