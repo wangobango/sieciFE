@@ -21,6 +21,7 @@ let port = 20000;
 let ip_addr = '192.168.1.16';
 let message_id_counter = 0;
 let buffor = '';
+let message;
 
 let client = new net.Socket();
 client.connect(port, ip_addr, () => {
@@ -236,12 +237,13 @@ ipcMain.on('ANSWER_GET_ROOM_LIST', (e, content) => {
 
 client.on('data', (d) => {
     let data = d;
+    message = '';
     if (data != null) {
         data = String(data);
         buffor += data;
         if (buffor.includes('STOP')) {
-            let message = buffor.substring(buffor.indexOf('START'), buffor.indexOf('STOP') + 4);
-            buffor.slice(buffor.indexOf('STOP') + 4);
+            message = buffor.substring(buffor.indexOf('START'), buffor.indexOf('STOP') + 4);
+            buffor = buffor.slice(buffor.indexOf('STOP') + 4);
             message = Parser.unparse(message);
             console.log(message);
             if (message.type = "ANSWER") {
