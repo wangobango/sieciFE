@@ -30,7 +30,7 @@ client.connect(port, ip_addr, () => {
 
 let Rooms = new rooms.Rooms();
 let Parser = new parser.Parser();
-let Canvas  = new canvas.Canvas();
+let Canvas = new canvas.Canvas();
 
 let roomListWindow;
 let nickWindow;
@@ -113,7 +113,7 @@ ipcMain.on('new-nick', (e, item) => {
     //Add sending nick to serwer
     let pom = {
         "type": "REQUEST",
-        "name": "NEW-USER",
+        "name": "NEW_USER",
         "content": {
             "name": user
         }
@@ -123,7 +123,7 @@ ipcMain.on('new-nick', (e, item) => {
 
     let pom2 = {
         "type": "REQUEST",
-        "name": "GET-ROOM-LIST",
+        "name": "GET_ROOM_LIST",
         "content": ""
     }
     data = Parser.parse(JSON.stringify(pom2), message_id_counter);
@@ -136,14 +136,21 @@ ipcMain.on('new-nick', (e, item) => {
 ipcMain.on('new-room-added', (e, room) => {
     let pom = {
         "type": "REQUEST",
-        "name": "NEW-ROOM",
+        "name": "NEW_ROOM",
         "content": {
             "name": room
         }
     }
-    console.log(JSON.stringify(pom));
     let data = Parser.parse(JSON.stringify(pom), message_id_counter);
     client.write(String(data), 'utf-8');
+
+    currenCanvasRoom = room;
+    let content = {
+        "roomName": currenCanvasRoom
+    }
+
+    createCanvasWindow();
+    roomListWindow.close();
     newRoomWindow.close();
 })
 
@@ -155,9 +162,10 @@ ipcMain.on('leave-gaming-room', () => {
 ipcMain.on('chat-msg-sent', (e, text) => {
     let pom = {
         "type": "INFO",
-        "name": "CHAT-MSG",
+        "name": "CHAT_MSG",
         "content": {
-            "text": text
+            "text": text,
+            "currentRoom": currenCanvasRoom
         }
     };
     let data = Parser.parse(JSON.stringify(pom), message_id_counter);
@@ -197,8 +205,9 @@ ipcMain.on('enter-game', (e, room) => {
     let pom = {
         "type": "REQUEST",
         "name": "JOIN_ROOM",
-        "content": "",
-        "name": room
+        "content": {
+            "roomName":room
+        },
     }
 
     let data = Parser.parse(JSON.stringify(pom), message_id_counter);
@@ -235,17 +244,21 @@ client.on('data', (d) => {
             buffor.slice(buffor.indexOf('STOP') + 4);
             message = Parser.unparse(message);
             if (message.type = "ANSWER") {
-                if (message.name = "GET-ROOM-LIST") {
-                    message.content.forEach(el => {
-                        Rooms.addNewRoom(el.name);
-                    });
+                if (message.name = "GET_ROOM_LIST") {
+                    console.log(message.content.length);
+                    if (message.content.length > 2) {
+                        console.log("DUPA");
+                        message.content.forEach(el => {
+                            Rooms.addNewRoom(el.name, el.ownerId, el.users);
+                        });
+                    }
                 }
             } else if (message.type = "INFO") {
                 if (message.name == "SYN_CANVAS") {
                     console.log(message);
                     Canvas.saveCanvas(message.content);
-                } else if(message.type == "NEW_ROOM"){
-
+                } else if (message.type == "NEW_ROOM") {
+                    console.log(message);
                 }
 
             }

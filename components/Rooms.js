@@ -22,13 +22,12 @@ Rooms.prototype.incrementUsers = function (roomId) {
     });
 };
 
-Rooms.prototype.addNewRoom = function (name,ownerid,users,password) {
+Rooms.prototype.addNewRoom = function (name,ownerid,users) {
     let room = {
         id: Rooms.prototype.getNewId(),
         name: name,
         ownerid: ownerid,
-        users: users,
-        password: password
+        users:users
     }
     if (name != '') {
         rooms.push(room);
