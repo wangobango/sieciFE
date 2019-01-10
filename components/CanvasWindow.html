@@ -230,7 +230,7 @@
             //chat interval
             setInterval(()=>{
                 ipcRenderer.send('request-chat-msgs');
-            })
+            },1000)
 
 
             exit_button = document.getElementById('exit-button');
