@@ -26,7 +26,7 @@ Rooms.prototype.addNewRoom = function (name,ownerid,users) {
     let room = {
         id: Rooms.prototype.getNewId(),
         name: name,
-        ownerid: ownerid,
+        ownerName: ownerid,
         users:users
     }
     if (name != '') {

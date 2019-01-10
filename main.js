@@ -244,6 +244,7 @@ client.on('data', (d) => {
         if (buffor.includes('STOP')) {
             message = buffor.substring(buffor.indexOf('START'), buffor.indexOf('STOP') + 4);
             buffor = buffor.slice(buffor.indexOf('STOP') + 4);
+            console.log(message);
             message = Parser.unparse(message);
             console.log(message);
             if (message.type = "ANSWER") {
@@ -251,7 +252,7 @@ client.on('data', (d) => {
                     console.log(message.content.length);
                     if (message.content.length) {
                         message.content.forEach(el => {
-                            Rooms.addNewRoom(el.name, el.ownerId, el.users);
+                            Rooms.addNewRoom(el.name, el.ownerName, el.guests);
                         });
                     }
                 }
@@ -259,7 +260,7 @@ client.on('data', (d) => {
                 if (message.name == "SYN_CANVAS") {
                     Canvas.saveCanvas(message.content);
                 } else if (message.type == "NEW_ROOM") {
-                    Rooms.addNewRoom(message.content.name, message.content.ownerId, message.content.users);
+                    Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests);
                 }
 
             }
