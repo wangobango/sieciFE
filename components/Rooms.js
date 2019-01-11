@@ -86,6 +86,16 @@ Rooms.prototype.getRoomByName = function (name) {
     return room;
 };
 
+Rooms.prototype.getOwnerByRoomName = function(name) {
+    let owner;
+    rooms.forEach(item => {
+        if (item.name.replace(/\s/g, '') == name.replace(/\s/g, '')) {
+            owner = item.ownerName;
+        }
+    })
+    return owner;
+}
+
 Rooms.prototype.deleteAllRooms = function () {
     rooms = [];
     fs.writeFile(path, JSON.stringify(rooms), 'utf-8', (err) => {

@@ -27,7 +27,6 @@
         btn.addEventListener('click', addNewRoom);
 
         function addNewRoom(){
-            R.addNewRoom(document.getElementById('new-room-input').value);
             ipcRenderer.send('new-room-added',document.getElementById('new-room-input').value);
         }
 

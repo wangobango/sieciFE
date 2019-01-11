@@ -18,7 +18,7 @@ const canvas = require('./components/Canvas');
 
 let net = require('net');
 let port = 20000;
-let ip_addr = '192.168.1.16';
+let ip_addr = '127.0.0.1';
 let message_id_counter = 0;
 let buffor = '';
 let message;
@@ -136,6 +136,7 @@ ipcMain.on('new-nick', (e, item) => {
 });
 
 ipcMain.on('new-room-added', (e, room) => {
+    Rooms.addNewRoom(room,user,1);
     let pom = {
         "type": "REQUEST",
         "name": "NEW_ROOM",
@@ -157,6 +158,16 @@ ipcMain.on('new-room-added', (e, room) => {
 })
 
 ipcMain.on('leave-gaming-room', () => {
+    let pom = {
+        "type": "REQUEST",
+        "name": "QUIT_ROOM",
+        "content": {
+            "roomName": currenCanvasRoom
+        }
+    };
+    let data = Parser.parse(JSON.stringify(pom), message_id_counter);
+    client.write(String(data), 'utf-8');
+
     createWindow();
     canvasWindow.close();
 })
@@ -240,6 +251,14 @@ ipcMain.on('request-chat-msgs' , (e) =>{
     chat_messages = [];
 })
 
+ipcMain.on('get-owner-user-data', (e)=>{
+    let pom3 = {
+        "user" : user,
+        "owner" : Rooms.getOwnerByRoomName(currenCanvasRoom),
+    }
+    e.sender.send('answer-owner-user-data',pom3);
+})
+
 //CLIENT RECIVE DATA EVENTS
 
 client.on('data', (d) => {
@@ -256,7 +275,6 @@ client.on('data', (d) => {
             console.log(message);
             if (message.type == "ANSWER") {
                 if (message.name == "GET_ROOM_LIST") {
-                    console.log(message.content.length);
                     if (message.content.length) {
                         message.content.forEach(el => {
                             Rooms.addNewRoom(el.name, el.ownerName, el.guests);
@@ -286,6 +304,7 @@ app.on('ready', () => {
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
         Rooms.deleteAllRooms();
+        Canvas.clearJson();
         client.destroy();
         app.quit()
     }
