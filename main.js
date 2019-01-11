@@ -136,7 +136,7 @@ ipcMain.on('new-nick', (e, item) => {
 });
 
 ipcMain.on('new-room-added', (e, room) => {
-    Rooms.addNewRoom(room,user,1);
+    Rooms.addNewRoom(room, user, 1);
     let pom = {
         "type": "REQUEST",
         "name": "NEW_ROOM",
@@ -219,7 +219,7 @@ ipcMain.on('enter-game', (e, room) => {
         "type": "REQUEST",
         "name": "JOIN_ROOM",
         "content": {
-            "roomName":room
+            "roomName": room
         },
     }
 
@@ -246,17 +246,17 @@ ipcMain.on('ANSWER_GET_ROOM_LIST', (e, content) => {
 
 });
 
-ipcMain.on('request-chat-msgs' , (e) =>{
-    e.sender.send('answer-chat-messages',chat_messages);
+ipcMain.on('request-chat-msgs', (e) => {
+    e.sender.send('answer-chat-messages', chat_messages);
     chat_messages = [];
 })
 
-ipcMain.on('get-owner-user-data', (e)=>{
+ipcMain.on('get-owner-user-data', (e) => {
     let pom3 = {
-        "user" : user,
-        "owner" : Rooms.getOwnerByRoomName(currenCanvasRoom),
+        "user": user,
+        "owner": Rooms.getOwnerByRoomName(currenCanvasRoom),
     }
-    e.sender.send('answer-owner-user-data',pom3);
+    e.sender.send('answer-owner-user-data', pom3);
 })
 
 //CLIENT RECIVE DATA EVENTS
@@ -276,6 +276,7 @@ client.on('data', (d) => {
             if (message.type == "ANSWER") {
                 if (message.name == "GET_ROOM_LIST") {
                     if (message.content.length) {
+                        Rooms.deleteAllRooms();
                         message.content.forEach(el => {
                             Rooms.addNewRoom(el.name, el.ownerName, el.guests);
                         });
@@ -286,7 +287,7 @@ client.on('data', (d) => {
                     Canvas.saveCanvas(message.content);
                 } else if (message.name == "NEW_ROOM") {
                     Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests);
-                } else if (message.name == "CHAT_MSG"){
+                } else if (message.name == "CHAT_MSG") {
                     chat_messages.push(message.content);
                 }
 
