@@ -1,11 +1,11 @@
 let fs = require('fs');
 let path = 'components/data/canvas.json';
-let canvas = JSON.parse(fs.readFileSync(path, 'utf-8'));
+let canvas = JSON.parse(fs.readFileSync(path, 'utf8'));
 
 function Canvas() {}
 
 Canvas.prototype.getCanvas = function () {
-    return canvas;
+    return JSON.parse(fs.readFileSync(path, 'utf8'));
 }
 
 Canvas.prototype.saveCanvas = function (canvasToSava) {

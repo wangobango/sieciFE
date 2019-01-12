@@ -72,6 +72,11 @@
         <script>
             const cS = require('./Canvas.js');
             const canvasSerializer = new cS.Canvas();
+            let fs = require('fs');
+            let path = 'components/data/canvas.json'
+            const ipcRenderer = require('electron').ipcRenderer;
+            let owner = '';
+            let user = '';
 
             function Pixels() {
                 this.pixels = [];
@@ -106,9 +111,9 @@
                 canvasSerializer.clearJson();
             }
 
-            Pixels.prototype.drawFromTable = function(table){
+            Pixels.prototype.drawFromTable = function (table) {
                 table.forEach(item => {
-                    initializeDrawing(item.pX,item.pY,item.cX,item.cY);
+                    initializeDrawing(item.pX, item.pY, item.cX, item.cY);
                 })
             }
 
@@ -129,18 +134,28 @@
                 w = canvas.width;
                 h = canvas.height;
 
-                canvas.addEventListener("mousemove", function (e) {
-                    findxy('move', e)
-                }, false);
-                canvas.addEventListener("mousedown", function (e) {
-                    findxy('down', e)
-                }, false);
-                canvas.addEventListener("mouseup", function (e) {
-                    findxy('up', e)
-                }, false);
-                canvas.addEventListener("mouseout", function (e) {
-                    findxy('out', e)
-                }, false);
+                //Get user nick and owner nick
+                ipcRenderer.send('get-owner-user-data');
+                ipcRenderer.on('answer-owner-user-data', (e, body) => {
+                    user = body.user;
+                    owner = body.owner;
+                    if (user == owner) {
+                        canvas.addEventListener("mousemove", function (e) {
+                            findxy('move', e)
+                        }, false);
+                        canvas.addEventListener("mousedown", function (e) {
+                            findxy('down', e)
+                        }, false);
+                        canvas.addEventListener("mouseup", function (e) {
+                            findxy('up', e)
+                            canvasPixels.savePixelsToJson();
+                            ipcRenderer.send("syn_canvas", canvasPixels.getPixels(), current_room);
+                        }, false);
+                        canvas.addEventListener("mouseout", function (e) {
+                            findxy('out', e)
+                        }, false);
+                    }
+                })
             }
 
             canvasPixels = new Pixels();
@@ -172,6 +187,7 @@
                     ctx.clearRect(0, 0, w, h);
                 }
                 canvasPixels.erase();
+                canvasSerializer.clearJson();
             }
 
             function findxy(res, e) {
@@ -207,18 +223,21 @@
 
             init();
 
-            canvasPixels.drawFromTable(canvasSerializer.getCanvas());
+            // canvasPixels.drawFromTable(canvasSerializer.getCanvas());
 
+            // if (owner != user) {
+                setInterval(() => {
+                    canvasPixels.drawFromTable(canvasSerializer.getCanvas());
+                    ipcRenderer.send('request-chat-msgs');
+                }, 1000);
+            // }
 
+            ipcRenderer.on('answer-chat-messages', (e, body) => {
+                body.forEach(el => {
+                    createMessage("dupa", el.text, 'other');
+                })
+            })
 
-            let fs = require('fs');
-            let path = 'components/data/canvas.json'
-            const ipcRenderer = require('electron').ipcRenderer;
-
-            setInterval(() => {
-                canvasPixels.savePixelsToJson();
-                ipcRenderer.send("syn_canvas", canvasPixels.getPixels(), current_room);
-            }, 2000);
 
             exit_button = document.getElementById('exit-button');
             exit_button.addEventListener('click', () => {
@@ -257,9 +276,6 @@
                 panel.appendChild(body);
             }
 
-            let user;
-            let current_room;
-
             ipcRenderer.send('request-nick');
             ipcRenderer.on('request-nick-answer', (e, item) => {
                 user = item;
@@ -267,8 +283,9 @@
 
             ipcRenderer.send('request-current-room');
             ipcRenderer.on('current-room-answer', (e, room) => {
-                current_room = room;
-                document.querySelector('title').innerHTML = room;
+                current_room = room.name;
+                owner = room.owner;
+                document.querySelector('title').innerHTML = current_room;
             });
 
             let msgButton = document.getElementById('text-button');

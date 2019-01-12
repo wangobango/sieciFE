@@ -22,11 +22,12 @@ Rooms.prototype.incrementUsers = function (roomId) {
     });
 };
 
-Rooms.prototype.addNewRoom = function (name) {
+Rooms.prototype.addNewRoom = function (name,ownerid,users) {
     let room = {
         id: Rooms.prototype.getNewId(),
         name: name,
-        users: 1
+        ownerName: ownerid,
+        users:users
     }
     if (name != '') {
         rooms.push(room);
@@ -36,11 +37,12 @@ Rooms.prototype.addNewRoom = function (name) {
     }
 }
 
-Rooms.prototype.addNewRoomWithId = function (id, name) {
+Rooms.prototype.addNewRoomWithId = function (id, name, ownerid, users) {
     let room = {
         id: id,
         name: name,
-        users: 1
+        users: users,
+        ownerid: ownerid
     }
     if (name != '') {
         rooms.push(room);
@@ -83,6 +85,16 @@ Rooms.prototype.getRoomByName = function (name) {
     })
     return room;
 };
+
+Rooms.prototype.getOwnerByRoomName = function(name) {
+    let owner;
+    rooms.forEach(item => {
+        if (item.name.replace(/\s/g, '') == name.replace(/\s/g, '')) {
+            owner = item.ownerName;
+        }
+    })
+    return owner;
+}
 
 Rooms.prototype.deleteAllRooms = function () {
     rooms = [];
