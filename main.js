@@ -270,7 +270,6 @@ client.on('data', (d) => {
         if (buffor.includes('STOP')) {
             message = buffor.substring(buffor.indexOf('START'), buffor.indexOf('STOP') + 4);
             buffor = buffor.slice(buffor.indexOf('STOP') + 4);
-            console.log(message);
             message = Parser.unparse(message);
             console.log(message);
             if (message.type == "ANSWER") {
@@ -284,7 +283,7 @@ client.on('data', (d) => {
                 }
             } else if (message.type == "INFO") {
                 if (message.name == "SYN_CANVAS") {
-                    Canvas.saveCanvas(message.content);
+                    Canvas.saveCanvas(message.content.pixels);
                 } else if (message.name == "NEW_ROOM") {
                     Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests);
                 } else if (message.name == "CHAT_MSG") {

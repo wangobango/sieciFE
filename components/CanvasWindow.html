@@ -187,6 +187,7 @@
                     ctx.clearRect(0, 0, w, h);
                 }
                 canvasPixels.erase();
+                canvasSerializer.clearJson();
             }
 
             function findxy(res, e) {
@@ -224,10 +225,12 @@
 
             // canvasPixels.drawFromTable(canvasSerializer.getCanvas());
 
-            setInterval(() => {
-                canvasPixels.drawFromTable(canvasSerializer.getCanvas());
-                ipcRenderer.send('request-chat-msgs');
-            }, 1000);
+            // if (owner != user) {
+                setInterval(() => {
+                    canvasPixels.drawFromTable(canvasSerializer.getCanvas());
+                    ipcRenderer.send('request-chat-msgs');
+                }, 1000);
+            // }
 
             ipcRenderer.on('answer-chat-messages', (e, body) => {
                 body.forEach(el => {
