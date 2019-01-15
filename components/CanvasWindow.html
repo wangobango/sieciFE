@@ -158,6 +158,23 @@
                 })
             }
 
+            function makeOwner() {
+                canvas.addEventListener("mousemove", function (e) {
+                    findxy('move', e)
+                }, false);
+                canvas.addEventListener("mousedown", function (e) {
+                    findxy('down', e)
+                }, false);
+                canvas.addEventListener("mouseup", function (e) {
+                    findxy('up', e)
+                    canvasPixels.savePixelsToJson();
+                    ipcRenderer.send("syn_canvas", canvasPixels.getPixels(), current_room);
+                }, false);
+                canvas.addEventListener("mouseout", function (e) {
+                    findxy('out', e)
+                }, false);
+            }
+
             canvasPixels = new Pixels();
 
             function draw() {
@@ -226,10 +243,10 @@
             // canvasPixels.drawFromTable(canvasSerializer.getCanvas());
 
             // if (owner != user) {
-                setInterval(() => {
-                    canvasPixels.drawFromTable(canvasSerializer.getCanvas());
-                    ipcRenderer.send('request-chat-msgs');
-                }, 1000);
+            setInterval(() => {
+                canvasPixels.drawFromTable(canvasSerializer.getCanvas());
+                ipcRenderer.send('request-chat-msgs');
+            }, 1000);
             // }
 
             ipcRenderer.on('answer-chat-messages', (e, body) => {
@@ -298,6 +315,8 @@
 
             let clrButton = document.getElementById('clear-button');
             clrButton.addEventListener('click', erase);
+
+            
         </script>
 </body>
 

@@ -28,7 +28,6 @@ client.connect(port, ip_addr, () => {
     console.log('Connection succesfull!');
 });
 
-
 let Rooms = new rooms.Rooms();
 let Parser = new parser.Parser();
 let Canvas = new canvas.Canvas();
@@ -75,6 +74,8 @@ function createNickWindow() {
     nickWindow.on('closed', () => {
         nickWindow = null;
     })
+
+    // ipcRenderer.sendTo(win,'dupa');
 }
 
 function createNewRoomWindow() {
@@ -259,6 +260,11 @@ ipcMain.on('get-owner-user-data', (e) => {
     e.sender.send('answer-owner-user-data', pom3);
 })
 
+ipcMain.on('ask-client', (e)=>{
+    e.sender.send('ask-client-answer',client);
+})
+
+
 //CLIENT RECIVE DATA EVENTS
 
 client.on('data', (d) => {
@@ -285,7 +291,7 @@ client.on('data', (d) => {
                 if (message.name == "SYN_CANVAS") {
                     Canvas.saveCanvas(message.content.pixels);
                 } else if (message.name == "NEW_ROOM") {
-                    Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests);
+                    Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests+1);
                 } else if (message.name == "CHAT_MSG") {
                     chat_messages.push(message.content);
                 }
