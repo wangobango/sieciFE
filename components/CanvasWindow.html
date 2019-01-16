@@ -238,6 +238,13 @@
             }
 
             init();
+            let io = require('socket.io').listen(8899);
+            io.sockets.on('connection', (socket) => {
+                socket.emit('socket-data', "dupa z main js");
+                socket.on('test', (data) => {
+                   console.log(data);
+                });
+            });
 
             // canvasPixels.drawFromTable(canvasSerializer.getCanvas());
 
