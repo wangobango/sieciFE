@@ -29,6 +29,11 @@ let victorious = false;
 const io = require('socket.io-client');
 let socket;
 
+let client = new net.Socket();
+client.connect(port, ip_addr, () => {
+    console.log('Connection succesfull!');
+});
+
 let Rooms = new rooms.Rooms();
 let Parser = new parser.Parser();
 let Canvas = new canvas.Canvas();
