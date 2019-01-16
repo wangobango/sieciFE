@@ -36,22 +36,6 @@
                                 </div>
                             </div>
                             <div class="panel-body msg_container_base" id="main-chat-panel">
-                                <div class="row msg_container base_sent">
-                                    <div class="col-md-10 col-xs-10">
-                                        <div class="messages msg_sent">
-                                            <p>Ramon's penis is sooo huge</p>
-                                            <time datetime="2009-11-13T20:00">Emil </time>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row msg_container base_receive">
-                                    <div class="col-md-10 col-xs-10">
-                                        <div class="messages msg_receive">
-                                            <p>I know dude. And your mother knows too.</p>
-                                            <time datetime="2009-11-13T20:00">Ramon </time>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -71,6 +55,7 @@
 
         <script>
             const cS = require('./Canvas.js');
+            let net = require('net');
             const canvasSerializer = new cS.Canvas();
             let fs = require('fs');
             let path = 'components/data/canvas.json'
@@ -175,6 +160,13 @@
                 }, false);
             }
 
+            function makeUser() {
+                canvas.removeEventListener('mousemove');
+                canvas.removeEventListener('mousedown');
+                canvas.removeEventListener('mouseup');
+                canvas.removeEventListener('mouseout');
+            }
+
             canvasPixels = new Pixels();
 
             function draw() {
@@ -251,7 +243,7 @@
 
             ipcRenderer.on('answer-chat-messages', (e, body) => {
                 body.forEach(el => {
-                    createMessage("dupa", el.text, 'other');
+                    createMessage("default", el.text, 'other');
                 })
             })
 
@@ -316,7 +308,19 @@
             let clrButton = document.getElementById('clear-button');
             clrButton.addEventListener('click', erase);
 
+            // let connection = new WebSocket('ws://127.0.0.1:1337');
+
+            // connection.onopen = function () {
+            //     alert("SUCCESS");
+            // }
+
+            ipcRenderer.on("victory",()=>{
+                alert("DUPA");
+            })
+
             
+
+
         </script>
 </body>
 
