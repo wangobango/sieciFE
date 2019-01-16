@@ -17,6 +17,7 @@ const rooms = require('./components/Rooms');
 const canvas = require('./components/Canvas');
 const WebSocketServer = require('websocket').server;
 const http = require('http');
+const events = require('events');
 
 let net = require('net');
 let port = 20000;
@@ -24,40 +25,6 @@ let ip_addr = '127.0.0.1';
 let message_id_counter = 0;
 let buffor = '';
 let message;
-let wsServer;
-
-//Test websocket server
-// let server = http.createServer((request, respone) => {
-//     server.listen(1337, () => {
-//         console.log("WS server is listening on port 1337");
-//     });
-
-//     wsServer = new WebSocketServer({
-//         httpServer: server,
-//         headers: {
-//             "Access-Control-Allow-Origin": "*",
-//             "Access-Control-Allow-Headers": "*",
-//             "Access-Control-Allow-Methods": "*",
-//             "Content-Security-Policy":"default-src http: ws: connect-src ws:"
-//         }
-//     })
-//     wsServer.on('request', (request) => {
-//         let connection = request.accept(null, request.origin);
-
-//         connection.on('message', (data) => {
-//             console.log(data);
-//         })
-
-//     });
-// });
-
-let server = net.createServer((socket) =>{
-    
-})
-
-
-
-//end test
 
 let client = new net.Socket();
 client.connect(port, ip_addr, () => {
@@ -328,8 +295,8 @@ client.on('data', (d) => {
                 } else if (message.name == "CHAT_MSG") {
                     chat_messages.push(message.content);
                 } else if (message.name == "VICTORY"){
-                    let win = canvasWindow.webContents;
-                    win.send("victory");
+                    // let win = canvasWindow.webContents;
+                    // win.send("victory");
                 }
 
             }
