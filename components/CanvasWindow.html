@@ -238,28 +238,33 @@
             }
 
             init();
-            let io = require('socket.io').listen(8899);
+            let io = require('socket.io').listen(8999);
             io.sockets.on('connection', (socket) => {
                 socket.emit('socket-data', "dupa z main js");
                 socket.on('test', (data) => {
                    console.log(data);
+                });
+
+                socket.on('new-chat-msg', (content) => {
+                    createMessage('default', content.text, 'other');
+                    console.log(content);
                 });
             });
 
             // canvasPixels.drawFromTable(canvasSerializer.getCanvas());
 
             // if (owner != user) {
-            setInterval(() => {
-                canvasPixels.drawFromTable(canvasSerializer.getCanvas());
-                ipcRenderer.send('request-chat-msgs');
-            }, 1000);
-            // }
+            // setInterval(() => {
+            //     canvasPixels.drawFromTable(canvasSerializer.getCanvas());
+            //     ipcRenderer.send('request-chat-msgs');
+            // }, 1000);
+            // // }
 
-            ipcRenderer.on('answer-chat-messages', (e, body) => {
-                body.forEach(el => {
-                    createMessage("default", el.text, 'other');
-                })
-            })
+            // ipcRenderer.on('answer-chat-messages', (e, body) => {
+            //     body.forEach(el => {
+            //         createMessage("default", el.text, 'other');
+            //     })
+            // })
 
 
             exit_button = document.getElementById('exit-button');

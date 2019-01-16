@@ -109,7 +109,7 @@ function createCanvasWindow() {
         protocol: 'file:',
         slashes: true
     }));
-    socket = io.connect('http://localhost:8899');
+    socket = io.connect('http://localhost:8999');
     canvasWindow.on('close', () => {
         canvasWindow = null;
         socket = null;
@@ -304,10 +304,16 @@ client.on('data', (d) => {
             } else if (message.type == "INFO") {
                 if (message.name == "SYN_CANVAS") {
                     Canvas.saveCanvas(message.content.pixels);
+                    if(socket !== undefined || socket !== null) {
+                        socket.emit('canvas-sync-rec');
+                    }
                 } else if (message.name == "NEW_ROOM") {
                     Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests + 1);
                 } else if (message.name == "CHAT_MSG") {
                     chat_messages.push(message.content);
+                    if(socket !== undefined || socket !== null) {
+                        socket.emit('new-chat-msg', message.content);
+                    }
                 } else if (message.name == "VICTORY") {
                     // let win = canvasWindow.webContents;
                     // win.send("victory");
