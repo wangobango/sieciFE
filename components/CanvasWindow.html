@@ -43,8 +43,10 @@
                     <div class="row panel-footer container">
                         <div class="col-lg-6">
                             <div class="row justify-content-center">
-                                <input type="text" class="form-control" id="text-field" />
-                                <button class="btn btn-primary text" id="text-button">Submit Message</button>
+                                <form>
+                                    <input type="text" class="form-control" id="text-field" />
+                                    <button class="btn btn-primary text" id="text-button">Submit Message</button>
+                                </form>
                                 <button class="btn btn-primary exit" id="exit-button">Exit</button>
                             </div>
                         </div>
@@ -58,7 +60,7 @@
             let net = require('net');
             const canvasSerializer = new cS.Canvas();
             let fs = require('fs');
-            let path = 'components/data/canvas.json'
+            let path = 'components/data/canvas.json';
             const ipcRenderer = require('electron').ipcRenderer;
             let owner = '';
             let user = '';
@@ -124,7 +126,7 @@
                 ipcRenderer.on('answer-owner-user-data', (e, body) => {
                     user = body.user;
                     owner = body.owner;
-                    if (user == owner) {
+                    if (user === owner) {
                         canvas.addEventListener("mousemove", function (e) {
                             findxy('move', e)
                         }, false);
@@ -139,6 +141,11 @@
                         canvas.addEventListener("mouseout", function (e) {
                             findxy('out', e)
                         }, false);
+                        document.getElementById('exit-button').style.display = "none";
+                        document.getElementById('text-button').style.display = "none";
+
+                    } else {
+                        document.getElementById('clear-button').style.display = "none";
                     }
                 })
             }
@@ -300,7 +307,8 @@
             let msgButton = document.getElementById('text-button');
             let msgField = document.getElementById('text-field');
 
-            msgButton.addEventListener('click', () => {
+            msgButton.addEventListener('click', (e) => {
+                e.preventDefault();
                 ipcRenderer.send('chat-msg-sent', msgField.value)
                 createMessage(user, msgField.value, "sent");
             })
