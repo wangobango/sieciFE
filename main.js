@@ -25,6 +25,7 @@ let ip_addr = '127.0.0.1';
 let message_id_counter = 0;
 let buffor = '';
 let message;
+let victorious = false;
 
 let client = new net.Socket();
 client.connect(port, ip_addr, () => {
@@ -263,6 +264,12 @@ ipcMain.on('get-owner-user-data', (e) => {
     e.sender.send('answer-owner-user-data', pom3);
 })
 
+ipcMain.on('ask-victory', (e) => {
+    if (victorious) {
+        e.sender.send('answer-ask-victory');
+        victorious = false;
+    }
+})
 
 
 //CLIENT RECIVE DATA EVENTS
@@ -294,9 +301,10 @@ client.on('data', (d) => {
                     Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests + 1);
                 } else if (message.name == "CHAT_MSG") {
                     chat_messages.push(message.content);
-                } else if (message.name == "VICTORY"){
+                } else if (message.name == "VICTORY") {
                     // let win = canvasWindow.webContents;
                     // win.send("victory");
+                    victorious = true;
                 }
 
             }

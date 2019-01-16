@@ -46,8 +46,8 @@
                                 <form>
                                     <input type="text" class="form-control" id="text-field" />
                                     <button class="btn btn-primary text" id="text-button">Submit Message</button>
+                                    <button class="btn btn-primary exit" id="exit-button">Exit</button>
                                 </form>
-                                <button class="btn btn-primary exit" id="exit-button">Exit</button>
                             </div>
                         </div>
                     </div>
@@ -326,6 +326,14 @@
                 alert("DUPA");
             })
 
+            setInterval(()=>{
+                ipcRenderer.send('ask-victory');
+            },3000);
+
+            ipcRenderer.on('answer-ask-victory',()=>{
+                makeOwner();
+                alert("FUCKING VICTORY BITCH");
+            })
         </script>
 </body>
 
