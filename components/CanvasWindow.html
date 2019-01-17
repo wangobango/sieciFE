@@ -299,7 +299,6 @@
                     body.classList.add('row', 'msg_container', 'base_recive');
                     message.classList.add('messages', 'msg_recive');
                 }
-
                 message.append(message_value);
                 message.append(time_stamp);
                 chat_col.append(message);
@@ -307,6 +306,7 @@
 
                 let panel = document.getElementById('main-chat-panel');
                 panel.appendChild(body);
+                body.scrollIntoView();
             }
 
             ipcRenderer.send('request-nick');
