@@ -19,7 +19,7 @@
     <div class="row">
         <div class="col-md-8" style="height:600px;border-right: 1px dashed #333;">
             <div class="row" style="height:90%;">
-                <canvas id="myCanvas" width="533" height="600" />
+                <canvas id="myCanvas" width="600" height="600" style="border-style: solid;" />
             </div>
             <div class="row" style="padding-left:50px;">
                 <button type="button" class="btn btn-danger" id="clear-button">Clear</button>
@@ -64,6 +64,7 @@
             const ipcRenderer = require('electron').ipcRenderer;
             let owner = '';
             let user = '';
+            let pass;
 
             function Pixels() {
                 this.pixels = [];
@@ -157,6 +158,8 @@
             }
 
             function makeOwner() {
+                alert("You are a drawing person now ! Password is: " + pass);
+                document.getElementById('text-button').style.display = "none";
                 canvas.addEventListener("mousemove", function (e) {
                     findxy('move', e)
                 }, false);
@@ -315,6 +318,8 @@
             ipcRenderer.on('current-room-answer', (e, room) => {
                 current_room = room.name;
                 owner = room.owner;
+                pass = room.password;
+
                 document.querySelector('title').innerHTML = current_room;
             });
 
@@ -345,9 +350,11 @@
                 ipcRenderer.send('ask-victory');
             }, 3000);
 
-            ipcRenderer.on('answer-ask-victory', () => {
-                makeOwner();
+            ipcRenderer.on('answer-ask-victory', (e,name) => {
                 alert("FUCKING VICTORY BITCH");
+                if (name == user) {
+                    makeOwner();
+                }
             })
         </script>
 </body>

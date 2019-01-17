@@ -25,6 +25,7 @@ let message_id_counter = 0;
 let buffor = '';
 let message;
 let victorious = false;
+let password;
 
 const io = require('socket.io-client');
 let socket;
@@ -45,21 +46,33 @@ let canvasWindow;
 let user = '';
 let currenCanvasRoom;
 let chat_messages = [];
+let winnerName;
 
 function RoomList(){
     this.rooms = [];
 }
 
-RoomList.prototype.addNewRoom = function(name,ownerId,users){
+RoomList.prototype.addNewRoom = function(name,ownerId,users,password){
     let room = {
         name: name,
         ownerName: ownerId,
-        users:users
+        users:users,
+        currentPassword:password
     }
     if (name != '') {
         this.rooms.push(room);
     }
 };
+
+RoomList.prototype.getPassByName = function(name){
+    let owner;
+    this.rooms.forEach(item => {
+        if (item.name.replace(/\s/g, '') == name.replace(/\s/g, '')) {
+            owner = item.currentPassword;
+        }
+    })
+    return owner;
+}
 
 RoomList.prototype.getAll = function(){
     return this.rooms;
@@ -286,8 +299,10 @@ ipcMain.on('enter-game', (e, room) => {
 ipcMain.on('request-current-room', (e) => {
     let rum = {
         "name": currenCanvasRoom,
-        "owner": user
+        "owner": user,
+        "password":Rooms.getPassByName(currenCanvasRoom)
     }
+    console.log(rum);
     e.sender.send('current-room-answer', rum);
 })
 
@@ -318,7 +333,7 @@ ipcMain.on('get-owner-user-data', (e) => {
 
 ipcMain.on('ask-victory', (e) => {
     if (victorious) {
-        e.sender.send('answer-ask-victory');
+        e.sender.send('answer-ask-victory',winnerName);
         victorious = false;
     }
 })
@@ -359,6 +374,7 @@ client.on('data', (d) => {
                     // let win = canvasWindow.webContents;
                     // win.send("victory");
                     victorious = true;
+                    winnerName = message.content.winnerId;
                 } else if (message.name == "ROOM_DELETED") {
                     Rooms.deleteRoom(message.content.roomName);
                 }
