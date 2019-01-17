@@ -141,7 +141,6 @@
                         canvas.addEventListener("mouseout", function (e) {
                             findxy('out', e)
                         }, false);
-                        document.getElementById('exit-button').style.display = "none";
                         document.getElementById('text-button').style.display = "none";
 
                     } else {
@@ -204,6 +203,7 @@
                 }
                 canvasPixels.erase();
                 canvasSerializer.clearJson();
+                ipcRenderer.send("syn_canvas", canvasPixels.getPixels(), current_room);
             }
 
             function findxy(res, e) {
@@ -323,7 +323,7 @@
             // }
 
             ipcRenderer.on("victory", () => {
-                alert("DUPA");
+                alert("SUCCESS");
             })
 
             setInterval(()=>{
