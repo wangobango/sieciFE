@@ -8,7 +8,7 @@ let rooms = JSON.parse(fs.readFileSync(path, 'utf-8'));
 function Rooms() {}
 
 Rooms.prototype.getAll = function () {
-    return rooms;
+    return JSON.parse(fs.readFileSync(path, 'utf-8'));
 }
 
 /**
@@ -26,6 +26,7 @@ Rooms.prototype.incrementUsers = function (roomId) {
 };
 
 Rooms.prototype.addNewRoom = function (name,ownerid,users) {
+    // rooms = Rooms.prototype.getAll();
     let room = {
         id: Rooms.prototype.getNewId(),
         name: name,

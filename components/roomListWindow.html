@@ -50,36 +50,50 @@
 
     });
 
-    const R = new rooms.Rooms();
+    // const R = new rooms.Rooms();
 
-    R.getAll().forEach((item) => {
-      let li = document.createElement('li');
-      li.classList.add('list-group-item');
-      li.innerHTML =
-        `<span>${item.name}</span> <span>${item.users}/10</span>`;
-      ul.appendChild(li);
-    })
+    // R.getAll().forEach((item) => {
+    //   let li = document.createElement('li');
+    //   li.classList.add('list-group-item');
+    //   li.innerHTML =
+    //     `<span>${item.name}</span> <span>${item.users}/10</span>`;
+    //   ul.appendChild(li);
+    // })
+
+    reloadRooms();
 
     roomBtn.addEventListener('click', addNewRoom);
 
     function addNewRoom(e) {
       e.preventDefault();
-      ipcRenderer.send('new-room-window-open', R);
+      ipcRenderer.send('new-room-window-open');
     }
 
     function reloadRooms() {
+      // ul.innerHTML = '';
+      // delete require.cache[require.resolve('./Rooms.js')];
+      // let roomz = require('./Rooms.js');
+      // let rura = new roomz.Rooms();
+      ipcRenderer.send('get-rooms')
+      // rura.getAll().forEach((item) => {
+      //   let li = document.createElement('li');
+      //   li.classList.add('list-group-item');
+      //   li.innerHTML =
+      //     `<span>${item.name}</span>  <span>${item.users}/10</span>`;
+      //   ul.appendChild(li);
+      // })
+    }
+
+    ipcRenderer.on('answer-get-rooms', (e,data)=>{
       ul.innerHTML = '';
-      delete require.cache[require.resolve('./Rooms.js')];
-      let roomz = require('./Rooms.js');
-      let rura = new roomz.Rooms();
-      rura.getAll().forEach((item) => {
+      data.forEach((item) => {
         let li = document.createElement('li');
         li.classList.add('list-group-item');
         li.innerHTML =
           `<span>${item.name}</span>  <span>${item.users}/10</span>`;
         ul.appendChild(li);
       })
-    }
+    })
 
     // Open canvas window
     ul.addEventListener('dblclick', (event) => {

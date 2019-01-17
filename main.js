@@ -34,7 +34,7 @@ client.connect(port, ip_addr, () => {
     console.log('Connection succesfull!');
 });
 
-let Rooms = new rooms.Rooms();
+// let Rooms = new rooms.Rooms();
 let Parser = new parser.Parser();
 let Canvas = new canvas.Canvas();
 
@@ -46,9 +46,50 @@ let user = '';
 let currenCanvasRoom;
 let chat_messages = [];
 
+function RoomList(){
+    this.rooms = [];
+}
+
+RoomList.prototype.addNewRoom = function(name,ownerId,users){
+    let room = {
+        name: name,
+        ownerName: ownerId,
+        users:users
+    }
+    if (name != '') {
+        this.rooms.push(room);
+    }
+};
+
+RoomList.prototype.getAll = function(){
+    return this.rooms;
+}
+
+RoomList.prototype.deleteRoom = function(name){
+    this.rooms = this.rooms.filter( a => {
+        return a.name != name;
+    })
+}
+
+RoomList.prototype.deleteAllRooms = function(){
+    this.rooms = [];
+}
+
+RoomList.prototype.getOwnerByRoomName = function(name){
+    let owner;
+    this.rooms.forEach(item => {
+        if (item.name.replace(/\s/g, '') == name.replace(/\s/g, '')) {
+            owner = item.ownerName;
+        }
+    })
+    return owner;
+}
+
 function sendData(data, client) {
     client.write(String(data), 'utf-8');
 }
+
+let Rooms = new RoomList();
 
 function createWindow() {
     roomListWindow = new BrowserWindow({
@@ -207,12 +248,12 @@ ipcMain.on('syn_canvas', (e, pixels, currentRoom) => {
     let data = Parser.parse(JSON.stringify(pom), message_id_counter);
     message_id_counter++;
     client.write(String(data), 'utf-8');
-    if(socket !== undefined) {
+    if (socket !== undefined) {
         socket.emit('test', 'test z main');
     }
 });
 
-ipcMain.on('new-room-window-open', (e, R) => {
+ipcMain.on('new-room-window-open', (e) => {
     createNewRoomWindow();
     // newRoomWindow.webContents.send('new-room', R);
 })
@@ -258,6 +299,10 @@ ipcMain.on('ANSWER_GET_ROOM_LIST', (e, content) => {
 
 });
 
+ipcMain.on('get-rooms', (e)=>{
+    e.sender.send('answer-get-rooms',Rooms.getAll());
+})
+
 ipcMain.on('request-chat-msgs', (e) => {
     e.sender.send('answer-chat-messages', chat_messages);
     chat_messages = [];
@@ -299,19 +344,23 @@ client.on('data', (d) => {
                         message.content.forEach(el => {
                             Rooms.addNewRoom(el.name, el.ownerName, el.guests);
                         });
+                    } else {
+                        Rooms.deleteAllRooms();
                     }
                 }
             } else if (message.type == "INFO") {
                 if (message.name == "SYN_CANVAS") {
                     Canvas.saveCanvas(message.content.pixels);
                 } else if (message.name == "NEW_ROOM") {
-                    Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests + 1);
+                    Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests);
                 } else if (message.name == "CHAT_MSG") {
                     chat_messages.push(message.content);
                 } else if (message.name == "VICTORY") {
                     // let win = canvasWindow.webContents;
                     // win.send("victory");
                     victorious = true;
+                } else if (message.name == "ROOM_DELETED") {
+                    Rooms.deleteRoom(message.content.roomName);
                 }
 
             }

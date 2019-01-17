@@ -264,7 +264,7 @@
 
             ipcRenderer.on('answer-chat-messages', (e, body) => {
                 body.forEach(el => {
-                    createMessage("default", el.text, 'other');
+                    createMessage(el.sender, el.text, 'other');
                 })
             })
 
