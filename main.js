@@ -374,7 +374,7 @@ client.on('data', (d) => {
                     // let win = canvasWindow.webContents;
                     // win.send("victory");
                     victorious = true;
-                    winnerName = message.content.winnerId;
+                    winnerName = message.winnerId;
                 } else if (message.name == "ROOM_DELETED") {
                     Rooms.deleteRoom(message.content.roomName);
                 }
