@@ -9,12 +9,10 @@ Canvas.prototype.getCanvas = function () {
 }
 
 Canvas.prototype.saveCanvas = function (canvasToSava) {
-    if (canvasToSava != '') {
         canvas = canvasToSava;
         fs.writeFile(path, JSON.stringify(canvas), 'utf-8', (err) => {
             if (err) throw err;
         });
-    }
 }
 
 Canvas.prototype.appendToCanvas = function (canvasToSava) {

@@ -99,9 +99,16 @@
             }
 
             Pixels.prototype.drawFromTable = function (table) {
-                table.forEach(item => {
-                    initializeDrawing(item.pX, item.pY, item.cX, item.cY);
-                })
+                if (table.length > 0) {
+                    table.forEach(item => {
+                        initializeDrawing(item.pX, item.pY, item.cX, item.cY);
+                    })
+                } else {
+                    canvasPixels.erase();
+                    ctx.clearRect(0, 0, w, h);
+                    canvasPixels.erase();
+                    canvasSerializer.clearJson();
+                }
             }
 
             let w, h;
@@ -242,7 +249,7 @@
             io.sockets.on('connection', (socket) => {
                 socket.emit('socket-data', "dupa z main js");
                 socket.on('test', (data) => {
-                   console.log(data);
+                    console.log(data);
                 });
             });
 
@@ -333,11 +340,11 @@
                 alert("SUCCESS");
             })
 
-            setInterval(()=>{
+            setInterval(() => {
                 ipcRenderer.send('ask-victory');
-            },3000);
+            }, 3000);
 
-            ipcRenderer.on('answer-ask-victory',()=>{
+            ipcRenderer.on('answer-ask-victory', () => {
                 makeOwner();
                 alert("FUCKING VICTORY BITCH");
             })
