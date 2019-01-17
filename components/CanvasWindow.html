@@ -160,6 +160,7 @@
             function makeOwner() {
                 alert("You are a drawing person now ! Password is: " + pass);
                 document.getElementById('text-button').style.display = "none";
+                document.getElementById('clear-button').style.display = "inline";
                 canvas.addEventListener("mousemove", function (e) {
                     findxy('move', e)
                 }, false);
@@ -319,6 +320,8 @@
                 current_room = room.name;
                 owner = room.owner;
                 pass = room.password;
+
+                console.log(pass);
 
                 document.querySelector('title').innerHTML = current_room;
             });

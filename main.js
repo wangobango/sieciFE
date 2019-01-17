@@ -47,48 +47,54 @@ let user = '';
 let currenCanvasRoom;
 let chat_messages = [];
 let winnerName;
+let passReady = false;
 
-function RoomList(){
+function RoomList() {
     this.rooms = [];
 }
 
-RoomList.prototype.addNewRoom = function(name,ownerId,users,password){
+RoomList.prototype.addNewRoom = function (name, ownerId, users, password) {
     let room = {
         name: name,
         ownerName: ownerId,
-        users:users,
-        currentPassword:password
+        users: users,
+        currentPassword: password
     }
     if (name != '') {
         this.rooms.push(room);
     }
 };
 
-RoomList.prototype.getPassByName = function(name){
+RoomList.prototype.getPassByName = function (name) {
     let owner;
     this.rooms.forEach(item => {
-        if (item.name.replace(/\s/g, '') == name.replace(/\s/g, '')) {
+        if (item.name == name) {
             owner = item.currentPassword;
         }
     })
+
+    // owner = this.rooms.filter(a=>{
+    //     return a.name = name;
+    // })
+
     return owner;
 }
 
-RoomList.prototype.getAll = function(){
+RoomList.prototype.getAll = function () {
     return this.rooms;
 }
 
-RoomList.prototype.deleteRoom = function(name){
-    this.rooms = this.rooms.filter( a => {
+RoomList.prototype.deleteRoom = function (name) {
+    this.rooms = this.rooms.filter(a => {
         return a.name != name;
     })
 }
 
-RoomList.prototype.deleteAllRooms = function(){
+RoomList.prototype.deleteAllRooms = function () {
     this.rooms = [];
 }
 
-RoomList.prototype.getOwnerByRoomName = function(name){
+RoomList.prototype.getOwnerByRoomName = function (name) {
     let owner;
     this.rooms.forEach(item => {
         if (item.name.replace(/\s/g, '') == name.replace(/\s/g, '')) {
@@ -170,6 +176,7 @@ function createCanvasWindow() {
     });
 }
 
+
 //EVENT HANDLERS !!!
 
 ipcMain.on('new-nick', (e, item) => {
@@ -199,7 +206,7 @@ ipcMain.on('new-nick', (e, item) => {
 });
 
 ipcMain.on('new-room-added', (e, room) => {
-    Rooms.addNewRoom(room, user, 1);
+    // Rooms.addNewRoom(room, user, 1);
     let pom = {
         "type": "REQUEST",
         "name": "NEW_ROOM",
@@ -211,13 +218,14 @@ ipcMain.on('new-room-added', (e, room) => {
     client.write(String(data), 'utf-8');
 
     currenCanvasRoom = room;
-    let content = {
-        "roomName": currenCanvasRoom
-    }
 
-    createCanvasWindow();
-    roomListWindow.close();
-    newRoomWindow.close();
+    setTimeout(()=>{
+        createCanvasWindow();
+        roomListWindow.close();
+        newRoomWindow.close();
+    },1000);
+
+   
 })
 
 ipcMain.on('leave-gaming-room', () => {
@@ -277,9 +285,6 @@ ipcMain.on('request-nick', (e) => {
 
 ipcMain.on('enter-game', (e, room) => {
     currenCanvasRoom = room;
-    let content = {
-        "roomName": currenCanvasRoom
-    }
 
     let pom = {
         "type": "REQUEST",
@@ -300,9 +305,10 @@ ipcMain.on('request-current-room', (e) => {
     let rum = {
         "name": currenCanvasRoom,
         "owner": user,
-        "password":Rooms.getPassByName(currenCanvasRoom)
+        "password": Rooms.getPassByName(currenCanvasRoom)
     }
     console.log(rum);
+    console.log(Rooms.getAll());
     e.sender.send('current-room-answer', rum);
 })
 
@@ -314,8 +320,8 @@ ipcMain.on('ANSWER_GET_ROOM_LIST', (e, content) => {
 
 });
 
-ipcMain.on('get-rooms', (e)=>{
-    e.sender.send('answer-get-rooms',Rooms.getAll());
+ipcMain.on('get-rooms', (e) => {
+    e.sender.send('answer-get-rooms', Rooms.getAll());
 })
 
 ipcMain.on('request-chat-msgs', (e) => {
@@ -333,7 +339,7 @@ ipcMain.on('get-owner-user-data', (e) => {
 
 ipcMain.on('ask-victory', (e) => {
     if (victorious) {
-        e.sender.send('answer-ask-victory',winnerName);
+        e.sender.send('answer-ask-victory', winnerName);
         victorious = false;
     }
 })
@@ -357,7 +363,7 @@ client.on('data', (d) => {
                     if (message.content.length) {
                         Rooms.deleteAllRooms();
                         message.content.forEach(el => {
-                            Rooms.addNewRoom(el.name, el.ownerName, el.guests);
+                            Rooms.addNewRoom(el.name, el.ownerName, el.guests, el.currentPassword);
                         });
                     } else {
                         Rooms.deleteAllRooms();
@@ -367,7 +373,7 @@ client.on('data', (d) => {
                 if (message.name == "SYN_CANVAS") {
                     Canvas.saveCanvas(message.content.pixels);
                 } else if (message.name == "NEW_ROOM") {
-                    Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests);
+                    Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests, message.connect.currentPassword);
                 } else if (message.name == "CHAT_MSG") {
                     chat_messages.push(message.content);
                 } else if (message.name == "VICTORY") {
@@ -377,6 +383,9 @@ client.on('data', (d) => {
                     winnerName = message.winnerId;
                 } else if (message.name == "ROOM_DELETED") {
                     Rooms.deleteRoom(message.content.roomName);
+                } else if (message.name == "NEW_GAME") {
+                    password = message.content.currentPassword;
+                    Rooms.addNewRoom(currenCanvasRoom, user, 1, password);
                 }
 
             }
