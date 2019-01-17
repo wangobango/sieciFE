@@ -1,3 +1,6 @@
+"use babel";
+"use strict";
+
 let fs = require('fs');
 let path = 'components/data/rooms.json';
 let rooms = JSON.parse(fs.readFileSync(path, 'utf-8'));
@@ -5,7 +8,7 @@ let rooms = JSON.parse(fs.readFileSync(path, 'utf-8'));
 function Rooms() {}
 
 Rooms.prototype.getAll = function () {
-    return rooms;
+    return JSON.parse(fs.readFileSync(path, 'utf-8'));
 }
 
 /**

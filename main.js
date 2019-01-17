@@ -15,6 +15,8 @@ const ipcRenderer = require('electron').ipcRenderer;
 const parser = require('./components/Parser');
 const rooms = require('./components/Rooms');
 const canvas = require('./components/Canvas');
+const WebSocketServer = require('websocket').server;
+const http = require('http');
 
 let net = require('net');
 let port = 20000;
@@ -22,12 +24,15 @@ let ip_addr = '127.0.0.1';
 let message_id_counter = 0;
 let buffor = '';
 let message;
+let victorious = false;
+
+const io = require('socket.io-client');
+let socket;
 
 let client = new net.Socket();
 client.connect(port, ip_addr, () => {
     console.log('Connection succesfull!');
 });
-
 
 let Rooms = new rooms.Rooms();
 let Parser = new parser.Parser();
@@ -75,6 +80,8 @@ function createNickWindow() {
     nickWindow.on('closed', () => {
         nickWindow = null;
     })
+
+    // ipcRenderer.sendTo(win,'dupa');
 }
 
 function createNewRoomWindow() {
@@ -102,8 +109,10 @@ function createCanvasWindow() {
         protocol: 'file:',
         slashes: true
     }));
+    socket = io.connect('http://localhost:8899');
     canvasWindow.on('close', () => {
         canvasWindow = null;
+        socket = null;
     });
 }
 
@@ -198,6 +207,9 @@ ipcMain.on('syn_canvas', (e, pixels, currentRoom) => {
     let data = Parser.parse(JSON.stringify(pom), message_id_counter);
     message_id_counter++;
     client.write(String(data), 'utf-8');
+    if(socket !== undefined) {
+        socket.emit('test', 'test z main');
+    }
 });
 
 ipcMain.on('new-room-window-open', (e, R) => {
@@ -259,6 +271,14 @@ ipcMain.on('get-owner-user-data', (e) => {
     e.sender.send('answer-owner-user-data', pom3);
 })
 
+ipcMain.on('ask-victory', (e) => {
+    if (victorious) {
+        e.sender.send('answer-ask-victory');
+        victorious = false;
+    }
+})
+
+
 //CLIENT RECIVE DATA EVENTS
 
 client.on('data', (d) => {
@@ -285,9 +305,13 @@ client.on('data', (d) => {
                 if (message.name == "SYN_CANVAS") {
                     Canvas.saveCanvas(message.content.pixels);
                 } else if (message.name == "NEW_ROOM") {
-                    Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests);
+                    Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests + 1);
                 } else if (message.name == "CHAT_MSG") {
                     chat_messages.push(message.content);
+                } else if (message.name == "VICTORY") {
+                    // let win = canvasWindow.webContents;
+                    // win.send("victory");
+                    victorious = true;
                 }
 
             }
