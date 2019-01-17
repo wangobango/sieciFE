@@ -8,7 +8,7 @@ let rooms = JSON.parse(fs.readFileSync(path, 'utf-8'));
 function Rooms() {}
 
 Rooms.prototype.getAll = function () {
-    return JSON.parse(fs.readFileSync(path, 'utf-8'));
+    return rooms;
 }
 
 /**

@@ -20,7 +20,7 @@ const http = require('http');
 
 let net = require('net');
 let port = 20000;
-let ip_addr = '127.0it.0.1';
+let ip_addr = '192.168.43.236';
 let message_id_counter = 0;
 let buffor = '';
 let message;
