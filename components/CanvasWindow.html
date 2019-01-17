@@ -325,7 +325,8 @@
                 e.preventDefault();
                 ipcRenderer.send('chat-msg-sent', msgField.value)
                 createMessage(user, msgField.value, "sent");
-            })
+                msgField.value = '';
+            });
 
             let clrButton = document.getElementById('clear-button');
             clrButton.addEventListener('click', erase);
@@ -338,7 +339,7 @@
 
             ipcRenderer.on("victory", () => {
                 alert("SUCCESS");
-            })
+            });
 
             setInterval(() => {
                 ipcRenderer.send('ask-victory');
