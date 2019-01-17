@@ -307,8 +307,6 @@ ipcMain.on('request-current-room', (e) => {
         "owner": user,
         "password": Rooms.getPassByName(currenCanvasRoom)
     }
-    console.log(rum);
-    console.log(Rooms.getAll());
     e.sender.send('current-room-answer', rum);
 })
 
@@ -373,7 +371,7 @@ client.on('data', (d) => {
                 if (message.name == "SYN_CANVAS") {
                     Canvas.saveCanvas(message.content.pixels);
                 } else if (message.name == "NEW_ROOM") {
-                    Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests, message.connect.currentPassword);
+                    Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests, message.content.currentPassword);
                 } else if (message.name == "CHAT_MSG") {
                     chat_messages.push(message.content);
                 } else if (message.name == "VICTORY") {
