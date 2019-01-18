@@ -135,20 +135,20 @@
                     user = body.user;
                     owner = body.owner;
                     if (user === owner && check == true) {
-                        canvas.addEventListener("mousemove", function (e) {
+                        canvas.onmousemove = function (e) {
                             findxy('move', e)
-                        }, false);
-                        canvas.addEventListener("mousedown", function (e) {
+                        };
+                        canvas.onmousedown = function (e) {
                             findxy('down', e)
-                        }, false);
-                        canvas.addEventListener("mouseup", function (e) {
-                            findxy('up', e)
+                        };
+                        canvas.onmouseout = function (e) {
+                            findxy('out', e)
+                        };
+                        canvas.onmouseup = function (e) {
+                            findxy('up', e);
                             canvasPixels.savePixelsToJson();
                             ipcRenderer.send("syn_canvas", canvasPixels.getPixels(), current_room);
-                        }, false);
-                        canvas.addEventListener("mouseout", function (e) {
-                            findxy('out', e)
-                        }, false);
+                        };
                         document.getElementById('text-button').style.display = "none";
 
                     } else {
@@ -180,6 +180,11 @@
             function makeUser() {
                 document.getElementById('text-button').style.display = "inline";
                 document.getElementById('clear-button').style.display = "none";
+
+                canvas.onmousedown = null;
+                canvas.onmousemove = null;
+                canvas.onmouseup = null;
+                canvas.onmouseout = null;
 
                 canvas = null;
                 canvas = false;
@@ -268,13 +273,14 @@
             }
 
             init();
-          
+
 
             // canvasPixels.drawFromTable(canvasSerializer.getCanvas());
 
             // if (owner != user) {
             setInterval(() => {
-                canvasPixels.drawFromTable(canvasSerializer.getCanvas().length > 0 ? canvasSerializer.getCanvas() : []);
+                canvasPixels.drawFromTable(canvasSerializer.getCanvas().length > 0 ? canvasSerializer.getCanvas() :
+                    []);
                 ipcRenderer.send('request-chat-msgs');
             }, 1000);
             // }
@@ -372,10 +378,16 @@
                 canvasPixels.erase();
                 if (name == user) {
                     makeOwner();
-                } 
-                if (user == owner) {
-                    makeUser();
                 }
+                ipcRenderer.send('get-owner-user-data')
+                ipcRenderer.on('answer-owner-user-data', (e, body) => {
+                    user = body.user;
+                    owner = body.owner;
+                    console.log(name + ' ' + user + ' ' + owner)
+                    if (user == owner) {
+                        makeUser();
+                    }
+                })
             })
         </script>
 </body>
