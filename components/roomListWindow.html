@@ -37,6 +37,8 @@
     const ul = document.getElementById('room-list');
     const roomBtn = document.getElementById('submit-room-button');
 
+    let roomNames;
+
     ipcRenderer.on('set-nick', (e, item) => {
       document.getElementById('nick-label').innerHTML = item;
     });
@@ -49,6 +51,7 @@
     ipcRenderer.on('rooms-update', (e, rooms) => {
 
     });
+
 
     // const R = new rooms.Rooms();
 

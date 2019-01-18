@@ -26,7 +26,7 @@ let buffor = '';
 let message;
 let victorious = false;
 let password;
-
+let tooCrowded = false;
 const io = require('socket.io-client');
 let socket;
 
@@ -48,6 +48,8 @@ let currenCanvasRoom;
 let chat_messages = [];
 let winnerName;
 let passReady = false;
+let nick_list = [];
+let room_names = [];
 
 function RoomList() {
     this.rooms = [];
@@ -219,13 +221,13 @@ ipcMain.on('new-room-added', (e, room) => {
 
     currenCanvasRoom = room;
 
-    setTimeout(()=>{
+    setTimeout(() => {
         createCanvasWindow();
         roomListWindow.close();
         newRoomWindow.close();
-    },1000);
+    }, 1000);
 
-   
+
 })
 
 ipcMain.on('leave-gaming-room', () => {
@@ -297,8 +299,16 @@ ipcMain.on('enter-game', (e, room) => {
     let data = Parser.parse(JSON.stringify(pom), message_id_counter);
     message_id_counter++;
     client.write(String(data), 'utf-8')
-    createCanvasWindow();
-    roomListWindow.close();
+
+    setTimeout(() => {
+        if (!tooCrowded) {
+            createCanvasWindow();
+            roomListWindow.close();
+        } else {
+            tooCrowded = false;
+            alert("ROOM TOO CROWDED!");
+        }
+    }, 500)
 })
 
 ipcMain.on('request-current-room', (e) => {
@@ -342,6 +352,13 @@ ipcMain.on('ask-victory', (e) => {
     }
 })
 
+ipcMain.on('request-nick-list', (e)=>{
+    e.sender.send('answer-request-nick-list',nick_list);
+})
+
+ipcMain.on('request-room-names', (e)=>{
+    e.sender.send('answer-request-room-names',room_names);
+})
 
 //CLIENT RECIVE DATA EVENTS
 
@@ -361,6 +378,8 @@ client.on('data', (d) => {
                     if (message.content.length) {
                         Rooms.deleteAllRooms();
                         message.content.forEach(el => {
+                            room_names.push(el.name);
+                            nick_list.push(el.ownerName);
                             Rooms.addNewRoom(el.name, el.ownerName, el.guests, el.currentPassword);
                         });
                     } else {
@@ -371,6 +390,8 @@ client.on('data', (d) => {
                 if (message.name == "SYN_CANVAS") {
                     Canvas.saveCanvas(message.content.pixels);
                 } else if (message.name == "NEW_ROOM") {
+                    room_names.push(message.content.name);
+                    nick_list.push(message.content.ownerName);
                     Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests, message.content.currentPassword);
                 } else if (message.name == "CHAT_MSG") {
                     chat_messages.push(message.content);
@@ -380,10 +401,15 @@ client.on('data', (d) => {
                     victorious = true;
                     winnerName = message.winnerId;
                 } else if (message.name == "ROOM_DELETED") {
+                    room_names = room_names.filter( a => {
+                        return a.name != message.content.roomName;
+                    })
                     Rooms.deleteRoom(message.content.roomName);
                 } else if (message.name == "NEW_GAME") {
                     password = message.content.currentPassword;
                     Rooms.addNewRoom(currenCanvasRoom, user, 1, password);
+                } else if (message.name == "ERROR") {
+                    tooCrowded = true;
                 }
 
             }
@@ -394,6 +420,14 @@ client.on('data', (d) => {
 // APP EVENTS
 
 app.on('ready', () => {
+    let pom2 = {
+        "type": "REQUEST",
+        "name": "GET_ROOM_LIST",
+        "content": ""
+    }
+    let data = Parser.parse(JSON.stringify(pom2), message_id_counter);
+    sendData(data, client);
+
     createNickWindow();
 });
 

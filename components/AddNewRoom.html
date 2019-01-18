@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Add New Room</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
 </head>
+
 <body>
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
     <div class="container">
         <form>
             <div class="form-group">
@@ -18,18 +24,33 @@
         </form>
     </div>
     <script>
+        "use babel"
         const electron = require('electron');
         const ipcRenderer = require('electron').ipcRenderer;
         const btn = document.getElementById('new-room-button');
         const rooms = require('./Rooms.js');
         const R = new rooms.Rooms();
 
+        let roomNames;
+
         btn.addEventListener('click', addNewRoom);
 
-        function addNewRoom(){
-            ipcRenderer.send('new-room-added',document.getElementById('new-room-input').value);
-        }
+        ipcRenderer.send('request-room-names');
+        ipcRenderer.on('answer-request-room-names', (e, body) => {
+            roomNames = body;
+        })
 
+        function addNewRoom() {
+            let pom = document.getElementById('new-room-input').value;
+            if (pom.includes("START") || pom.includes("STOP")) {
+                alert("These words are not allowed as a room name!")
+            } else if (roomNames.includes(pom)) {
+                alert("THIS ROOM NAME IS ALREADY IN USE!");
+            } else {
+                ipcRenderer.send('new-room-added', document.getElementById('new-room-input').value);
+            }
+        }
     </script>
 </body>
+
 </html>
