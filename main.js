@@ -106,6 +106,18 @@ RoomList.prototype.getOwnerByRoomName = function (name) {
     return owner;
 }
 
+RoomList.prototype.updateGuests = function (name, guests) {
+    let i = 0;
+    if (this.rooms.length > 0) {
+        this.rooms.forEach(item => {
+            if (item.name == name) {
+                this.rooms[i].users = guests;
+            }
+            i++;
+        })
+    }
+}
+
 function sendData(data, client) {
     client.write(String(data), 'utf-8');
 }
@@ -352,12 +364,12 @@ ipcMain.on('ask-victory', (e) => {
     }
 })
 
-ipcMain.on('request-nick-list', (e)=>{
-    e.sender.send('answer-request-nick-list',nick_list);
+ipcMain.on('request-nick-list', (e) => {
+    e.sender.send('answer-request-nick-list', nick_list);
 })
 
-ipcMain.on('request-room-names', (e)=>{
-    e.sender.send('answer-request-room-names',room_names);
+ipcMain.on('request-room-names', (e) => {
+    e.sender.send('answer-request-room-names', room_names);
 })
 
 //CLIENT RECIVE DATA EVENTS
@@ -401,7 +413,7 @@ client.on('data', (d) => {
                     victorious = true;
                     winnerName = message.winnerId;
                 } else if (message.name == "ROOM_DELETED") {
-                    room_names = room_names.filter( a => {
+                    room_names = room_names.filter(a => {
                         return a.name != message.content.roomName;
                     })
                     Rooms.deleteRoom(message.content.roomName);
@@ -410,8 +422,9 @@ client.on('data', (d) => {
                     Rooms.addNewRoom(currenCanvasRoom, user, 1, password);
                 } else if (message.name == "ERROR") {
                     tooCrowded = true;
+                } else if (message.name = "GUESTS_UPDATE") {
+                    Rooms.updateGuests(message.content.name, message.content.guests);
                 }
-
             }
         }
     }
