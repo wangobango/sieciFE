@@ -35,6 +35,7 @@ let socket;
 let client = new net.Socket();
 client.connect(port, ip_addr, () => {
     console.log('Connection succesfull!');
+    // client.setKeepalive(true, 5000);
 });
 
 // let Rooms = new rooms.Rooms();
@@ -128,9 +129,9 @@ RoomList.prototype.updatePassword = function (name, password) {
     }
 }
 
-RoomList.prototype.updateOwner = function(roomName,ownerName){
-    for(let i = 0 ; i<this.rooms.length; i++){
-        if(this.rooms[i].name == roomName){
+RoomList.prototype.updateOwner = function (roomName, ownerName) {
+    for (let i = 0; i < this.rooms.length; i++) {
+        if (this.rooms[i].name == roomName) {
             this.rooms[i].ownerName = ownerName;
         }
     }
@@ -173,7 +174,6 @@ function createNickWindow() {
         nickWindow = null;
     })
 
-    // ipcRenderer.sendTo(win,'dupa');
 }
 
 function createNewRoomWindow() {
@@ -379,7 +379,7 @@ ipcMain.on('ask-victory', (e) => {
     if (victorious) {
         victorious = false;
         //zmienic ownera
-        Rooms.updateOwner(currenCanvasRoom,winnerName);
+        Rooms.updateOwner(currenCanvasRoom, winnerName);
         e.sender.send('answer-ask-victory', winnerName);
     }
 })
@@ -417,13 +417,15 @@ client.on('data', (d) => {
                     } else {
                         Rooms.deleteAllRooms();
                     }
+                } else if (message.name == "GET_NICK_LIST") {
+                    nick_list = message.content.nickList;
                 }
             } else if (message.type == "INFO") {
                 if (message.name == "SYN_CANVAS") {
                     Canvas.saveCanvas(message.content.pixels);
                 } else if (message.name == "NEW_ROOM") {
                     room_names.push(message.content.name);
-                    nick_list.push(message.content.ownerName);
+                    // nick_list.push(message.content.ownerName);
                     Rooms.addNewRoom(message.content.name, message.content.ownerName, message.content.guests, message.content.currentPassword);
                 } else if (message.name == "CHAT_MSG") {
                     chat_messages.push(message.content);
@@ -459,6 +461,14 @@ app.on('ready', () => {
         "content": ""
     }
     let data = Parser.parse(JSON.stringify(pom2), message_id_counter);
+    sendData(data, client);
+
+    pom2 = {
+        "type": "REQUEST",
+        "name": "GET_NICK_LIST",
+        "content": ""
+    }
+    data = Parser.parse(JSON.stringify(pom2), message_id_counter);
     sendData(data, client);
 
     createNickWindow();
