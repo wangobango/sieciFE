@@ -32,11 +32,31 @@ let tooCrowded = false;
 const io = require('socket.io-client');
 let socket;
 
+let connected = true;
+
 let client = new net.Socket();
 client.connect(port, ip_addr, () => {
     console.log('Connection succesfull!');
     // client.setKeepalive(true, 5000);
+    setInterval(() => {
+        if (connected) {
+            let pom = {
+                "type": "REQUEST",
+                "name": "CHECK_CONNECTION",
+                "content": ""
+            };
+            let data = Parser.parse(JSON.stringify(pom), message_id_counter);
+            client.write(String(data), 'utf-8');
+            connected = false;
+        } else {
+            console.log("Disconnected!!!");
+        }
+    }, 5000);
 });
+
+// setInterval(() => {
+//     connected = false;
+// }, 5300);
 
 // let Rooms = new rooms.Rooms();
 let Parser = new parser.Parser();
@@ -392,6 +412,15 @@ ipcMain.on('request-room-names', (e) => {
     e.sender.send('answer-request-room-names', room_names);
 })
 
+ipcMain.on('ask-connected', (e) => {
+    e.sender.send('answer-ask-connected', connected);
+})
+
+ipcMain.on('quit-app', () => {
+    client.destroy();
+    app.quit();
+})
+
 //CLIENT RECIVE DATA EVENTS
 
 client.on('data', (d) => {
@@ -403,7 +432,12 @@ client.on('data', (d) => {
         while (buffor.includes('STOP')) {
             message = buffor.substring(buffor.indexOf('START'), buffor.indexOf('STOP') + 4);
             buffor = buffor.slice(buffor.indexOf('STOP') + 4);
-            message = Parser.unparse(message);
+            try {
+                message = Parser.unparse(message);
+            } catch (e) {
+                console.log("Bad json input!");
+                message = {};
+            }
             console.log(message);
             if (message.type == "ANSWER") {
                 if (message.name == "GET_ROOM_LIST") {
@@ -419,6 +453,8 @@ client.on('data', (d) => {
                     }
                 } else if (message.name == "GET_NICK_LIST") {
                     nick_list = message.content.nickList;
+                } else if (message.name == "CHECK_CONNECTION") {
+                    connected = true;
                 }
             } else if (message.type == "INFO") {
                 if (message.name == "SYN_CANVAS") {

@@ -113,6 +113,17 @@
     });
 
     setInterval(() => {
+      ipcRenderer.send('ask-connected');
+    }, 5300)
+
+    ipcRenderer.on('answer-ask-connected', (e, body) => {
+      if (body == false) {
+        alert("CLIENT DISCONNECTED!");
+        ipcRenderer.send("quit-app");
+      }
+    })
+
+    setInterval(() => {
       reloadRooms();
     }, 2000);
 
