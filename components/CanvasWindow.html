@@ -356,22 +356,26 @@
                 ipcRenderer.send('ask-victory');
             }, 3000);
 
-            setInterval(()=>{
+            setInterval(() => {
                 ipcRenderer.send('ask-connected');
-            },5300)
+            }, 5300)
 
-            ipcRenderer.on('answer-ask-connected',(e,body)=>{
-                if(body == false){
+            ipcRenderer.on('answer-ask-connected', (e, body) => {
+                if (body == false) {
                     alert("CLIENT DISCONNECTED!");
                     ipcRenderer.send("quit-app");
                 }
             })
 
             ipcRenderer.on('answer-ask-victory', (e, name) => {
-                alert("VICTORY !!!");
+                if (name.type == "newOwner") {
+                    alert("Owner disconnected, you are new owner now!");
+                } else if (name.type == "victory"){
+                    alert("VICTORY !!!");
+                }
                 ctx.clearRect(0, 0, w, h);
                 canvasPixels.erase();
-                if (name == user) {
+                if (name.name == user) {
                     makeOwner();
                 } else {
                     makeUser();

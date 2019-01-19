@@ -31,6 +31,7 @@ let password;
 let tooCrowded = false;
 const io = require('socket.io-client');
 let socket;
+let ownerDisconnected = false;
 
 let connected = true;
 
@@ -399,8 +400,22 @@ ipcMain.on('ask-victory', (e) => {
     if (victorious) {
         victorious = false;
         //zmienic ownera
+        let body;
         Rooms.updateOwner(currenCanvasRoom, winnerName);
-        e.sender.send('answer-ask-victory', winnerName);
+        if(ownerDisconnected){
+            body = {
+                "type":"newOwner",
+                "name":winnerName
+            }
+            ownerDisconnected = false;
+        } else {
+            body = {
+                "type":"victory",
+                "name":winnerName
+            }
+        }
+        
+        e.sender.send('answer-ask-victory', body);
     }
 })
 
@@ -480,12 +495,15 @@ client.on('data', (d) => {
                     Rooms.addNewRoom(currenCanvasRoom, user, 1, password);
                 } else if (message.name == "ERROR") {
                     tooCrowded = true;
-                } else if (message.name = "GUESTS_UPDATE") {
+                } else if (message.name == "GUESTS_UPDATE") {
                     Rooms.updateGuests(message.content.name, message.content.guests);
-                } else if (message.name = "NEW_OWNER"){
+                } else if (message.name == "NEW_OWNER"){
                     Rooms.updateOwner(message.content.name,message.content.ownerName);
                     Rooms.updatePassword(message.content.name,message.content.currentPassword);
                     Canvas.clearJson();
+                    winnerName = message.content.ownerName;
+                    victorious = true;
+                    ownerDisconnected = true;
                 }
             }
         }
