@@ -482,6 +482,10 @@ client.on('data', (d) => {
                     tooCrowded = true;
                 } else if (message.name = "GUESTS_UPDATE") {
                     Rooms.updateGuests(message.content.name, message.content.guests);
+                } else if (message.name = "NEW_OWNER"){
+                    Rooms.updateOwner(message.content.name,message.content.ownerName);
+                    Rooms.updatePassword(message.content.name,message.content.currentPassword);
+                    Canvas.clearJson();
                 }
             }
         }
