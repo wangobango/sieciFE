@@ -161,20 +161,16 @@
                 alert("You are a drawing person now ! Password is: " + pass);
                 document.getElementById('text-button').style.display = "none";
                 document.getElementById('clear-button').style.display = "inline";
-                canvas.addEventListener("mousemove", function (e) {
-                    findxy('move', e)
-                }, false);
-                canvas.addEventListener("mousedown", function (e) {
-                    findxy('down', e)
-                }, false);
-                canvas.addEventListener("mouseup", function (e) {
-                    findxy('up', e)
-                    canvasPixels.savePixelsToJson();
-                    ipcRenderer.send("syn_canvas", canvasPixels.getPixels(), current_room);
-                }, false);
-                canvas.addEventListener("mouseout", function (e) {
-                    findxy('out', e)
-                }, false);
+                
+                canvas.onmousedown = null;
+                canvas.onmousemove = null;
+                canvas.onmouseup = null;
+                canvas.onmouseout = null;
+
+                canvas = null;
+                canvas = false;
+
+                init();
             }
 
             function makeUser() {
@@ -188,24 +184,8 @@
 
                 canvas = null;
                 canvas = false;
+
                 init(false);
-
-                // let ev1 = getEventListeners(window)["mousemove"][0];
-                // window.removeEventListener("mousemove",ev1.listener,ev1.useCaputer);
-
-                // let ev2 = getEventListeners(window)["mousedown"][0];
-                // window.removeEventListener("mousedown",ev1.listener,ev1.useCaputer);
-
-                // let ev3 = getEventListeners(window)["mouseup"][0];
-                // window.removeEventListener("mouseup",ev1.listener,ev1.useCaputer);
-
-                // let ev4 = getEventListeners(window)["mouseout"][0];
-                // window.removeEventListener("mouseout",ev1.listener,ev1.useCaputer);
-
-                // canvas.removeEventListener('mousemove');
-                // canvas.removeEventListener('mousedown');
-                // canvas.removeEventListener('mouseup');
-                // canvas.removeEventListener('mouseout');
             }
 
             canvasPixels = new Pixels();
@@ -350,7 +330,7 @@
 
             msgButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                let pom = msgField.value.replace("STOP","").replace("START","");
+                let pom = msgField.value.replace("STOP", "").replace("START", "");
                 ipcRenderer.send('chat-msg-sent', pom)
                 createMessage(user, pom, "sent");
                 msgField.value = '';
@@ -373,22 +353,17 @@
                 ipcRenderer.send('ask-victory');
             }, 3000);
 
+
             ipcRenderer.on('answer-ask-victory', (e, name) => {
                 alert("FUCKING VICTORY BITCH");
                 ctx.clearRect(0, 0, w, h);
                 canvasPixels.erase();
                 if (name == user) {
                     makeOwner();
+                } else {
+                    makeUser();
                 }
-                ipcRenderer.send('get-owner-user-data')
-                ipcRenderer.on('answer-owner-user-data', (e, body) => {
-                    user = body.user;
-                    owner = body.owner;
-                    console.log(name + ' ' + user + ' ' + owner)
-                    if (user == owner) {
-                        makeUser();
-                    }
-                })
+
             })
         </script>
 </body>

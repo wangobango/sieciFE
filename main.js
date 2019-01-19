@@ -18,9 +18,11 @@ const canvas = require('./components/Canvas');
 const WebSocketServer = require('websocket').server;
 const http = require('http');
 
+let fs = require('fs');
+let config = JSON.parse(fs.readFileSync("./config.json", 'utf8'));
 let net = require('net');
-let port = 20000;
-let ip_addr = '127.0.0.1';
+let port = config.port;
+let ip_addr = config.ip;
 let message_id_counter = 0;
 let buffor = '';
 let message;
@@ -115,6 +117,14 @@ RoomList.prototype.updateGuests = function (name, guests) {
             }
             i++;
         })
+    }
+}
+
+RoomList.prototype.updateOwner = function(roomName,ownerName){
+    for(let i = 0 ; i<this.rooms.length; i++){
+        if(this.rooms[i].name == roomName){
+            this.rooms[i].ownerName = ownerName;
+        }
     }
 }
 
@@ -359,8 +369,10 @@ ipcMain.on('get-owner-user-data', (e) => {
 
 ipcMain.on('ask-victory', (e) => {
     if (victorious) {
-        e.sender.send('answer-ask-victory', winnerName);
         victorious = false;
+        //zmienic ownera
+        Rooms.updateOwner(currenCanvasRoom,winnerName);
+        e.sender.send('answer-ask-victory', winnerName);
     }
 })
 
@@ -380,7 +392,7 @@ client.on('data', (d) => {
     if (data != null) {
         data = String(data);
         buffor += data;
-        if (buffor.includes('STOP')) {
+        while (buffor.includes('STOP')) {
             message = buffor.substring(buffor.indexOf('START'), buffor.indexOf('STOP') + 4);
             buffor = buffor.slice(buffor.indexOf('STOP') + 4);
             message = Parser.unparse(message);
