@@ -28,7 +28,7 @@
         <div class="col-md-4" style="height:600px;">
             <div class="row" style="height:80%;">
                 <div class="col-md-12">
-                    <div class="chatbody">
+                    <div class="chatbody" id="chat-body">
                         <div class="panel panel-primary">
                             <div class="panel-heading top-bar">
                                 <div class="col-md-8 col-xs-8">
@@ -135,6 +135,8 @@
                     user = body.user;
                     owner = body.owner;
                     if (user === owner && check == true) {
+                        document.getElementById('chat-body').style.display = "none";
+                        document.getElementById('text-field').style.display = "none";
                         canvas.onmousemove = function (e) {
                             findxy('move', e)
                         };
@@ -150,7 +152,6 @@
                             ipcRenderer.send("syn_canvas", canvasPixels.getPixels(), current_room);
                         };
                         document.getElementById('text-button').style.display = "none";
-
                     } else {
                         document.getElementById('clear-button').style.display = "none";
                     }
@@ -161,7 +162,7 @@
                 alert("You are a drawing person now ! Password is: " + pass);
                 document.getElementById('text-button').style.display = "none";
                 document.getElementById('clear-button').style.display = "inline";
-                
+
                 canvas.onmousedown = null;
                 canvas.onmousemove = null;
                 canvas.onmouseup = null;
@@ -176,6 +177,8 @@
             function makeUser() {
                 document.getElementById('text-button').style.display = "inline";
                 document.getElementById('clear-button').style.display = "none";
+                document.getElementById('chat-body').style.display = "inline";
+                document.getElementById('text-field').style.display = "inline";
 
                 canvas.onmousedown = null;
                 canvas.onmousemove = null;

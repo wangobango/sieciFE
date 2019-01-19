@@ -77,10 +77,6 @@ RoomList.prototype.getPassByName = function (name) {
         }
     })
 
-    // owner = this.rooms.filter(a=>{
-    //     return a.name = name;
-    // })
-
     return owner;
 }
 
@@ -114,6 +110,18 @@ RoomList.prototype.updateGuests = function (name, guests) {
         this.rooms.forEach(item => {
             if (item.name == name) {
                 this.rooms[i].users = guests;
+            }
+            i++;
+        })
+    }
+}
+
+RoomList.prototype.updatePassword = function (name, password) {
+    let i = 0;
+    if (this.rooms.length > 0) {
+        this.rooms.forEach(item => {
+            if (item.name == name) {
+                this.rooms[i].currentPassword = password;
             }
             i++;
         })
